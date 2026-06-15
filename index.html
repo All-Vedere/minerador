@@ -183,7 +183,7 @@
 <div class="main">
 
   <!-- UPLOAD -->
-  <div class="upload-section" id="uploadSection">
+  <div class="upload-section" id="uploadSection" style="display:none;">
     <div class="upload-zone" id="uploadZone">
       <div class="icon">📂</div>
       <h2>Suba o catálogo do fornecedor</h2>
@@ -527,11 +527,22 @@
         else if (engine === 'bing') searchUrl = `https://www.bing.com/search?q=${encodeURIComponent('site:amazon.com.br '+term)}&count=10`;
         else searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('site:amazon.com.br '+term)}`;
 
-        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
-        const resp = await fetch(url);
-        if (!resp.ok) return [];
-        const data = await resp.json();
-        return extractASINs(data.contents || '');
+        // Try multiple CORS proxies as fallback
+        const proxies = [
+          `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`,
+          `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(searchUrl)}`,
+          `https://thingproxy.freeboard.io/fetch/${searchUrl}`
+        ];
+
+        for (const url of proxies) {
+          try {
+            const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+            if (!resp.ok) continue;
+            const html = await resp.text();
+            if (html.length > 100) return extractASINs(html);
+          } catch {}
+        }
+        return [];
       } catch { return []; }
     }
 
@@ -561,11 +572,21 @@
   async function fetchAmazonProduct(asin) {
     try {
       const amazonUrl = `https://www.amazon.com.br/dp/${asin}`;
-      const url = `https://api.allorigins.win/get?url=${encodeURIComponent(amazonUrl)}`;
-      const resp = await fetch(url);
-      if (!resp.ok) return { asin, amazonUrl, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
-      const data = await resp.json();
-      const html = data.contents || '';
+      let html = '';
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(amazonUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(amazonUrl)}`,
+        `https://thingproxy.freeboard.io/fetch/${amazonUrl}`
+      ];
+      for (const url of proxies) {
+        try {
+          const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
+          if (!resp.ok) continue;
+          html = await resp.text();
+          if (html.length > 500) break;
+        } catch {}
+      }
+      if (!html) return { asin, amazonUrl, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
 
       // Extract rating
       let rating = null;
