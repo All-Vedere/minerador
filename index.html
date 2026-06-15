@@ -188,7 +188,7 @@
 
 <!-- LOGIN OVERLAY -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1c1c1e;border:1px solid #3a3a3c;border-radius:24px;width:100%;max-width:480px;padding:40px 36px;">
+  <div style="background:#1c1c1e;border:1px solid #3a3a3c;border-radius:24px;width:100%;max-width:420px;padding:40px 36px;">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px;">
       <div style="width:48px;height:48px;background:#FFD700;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>
       <div>
@@ -196,16 +196,16 @@
         <div style="font-size:13px;color:#8e8e93;">All Vedere Commerce</div>
       </div>
     </div>
-    <div style="margin-bottom:20px;">
-      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Chave API Keepa</label>
-      <input id="inputKeepa" type="password" placeholder="Cole sua chave do Keepa aqui" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
+    <div style="margin-bottom:16px;">
+      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Usuário</label>
+      <input id="inputUser" type="text" placeholder="Digite seu usuário" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
     </div>
-    <div style="margin-bottom:32px;">
-      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Chave API Anthropic</label>
-      <input id="inputAnthropic" type="password" placeholder="sk-ant-..." style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
+    <div style="margin-bottom:28px;">
+      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Senha</label>
+      <input id="inputPass" type="password" placeholder="Digite sua senha" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;" onkeydown="if(event.key==='Enter')saveKeys()">
     </div>
+    <div id="loginError" style="display:none;background:#3d1a1a;color:#ff3b30;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px;">Usuário ou senha incorretos.</div>
     <button onclick="saveKeys()" style="width:100%;background:#FFD700;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Entrar</button>
-    <p style="margin-top:16px;font-size:12px;color:#636366;text-align:center;">As chaves ficam salvas apenas no seu navegador e nunca são enviadas para terceiros.</p>
   </div>
 </div>
 
@@ -309,30 +309,41 @@
 
   const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
 
-  let KEEPA_KEY = sessionStorage.getItem('keepa_key') || '';
-  let ANTHROPIC_KEY = sessionStorage.getItem('anthropic_key') || '';
+  let KEEPA_KEY = '';
+  let ANTHROPIC_KEY = '';
 
   let allProducts = [];
   let pendingConfirmation = null;
   let confirmResolve = null;
 
+  const VALID_USER = 'Allvedere';
+  const VALID_PASS = 'Lelisx@nd4';
+  const REAL_KEEPA_KEY = 'drec60ragfh0v63jlmq09l7f6hpo8bqak1bfvdhn62982h7brmakl3n37bk5hfgf';
+  const REAL_ANTHROPIC_KEY = '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';
+
   function checkLogin() {
-    if (!KEEPA_KEY || !ANTHROPIC_KEY) {
+    const logged = sessionStorage.getItem('logged');
+    if (!logged) {
       document.getElementById('loginOverlay').style.display = 'flex';
       document.getElementById('uploadSection').style.display = 'none';
+    } else {
+      KEEPA_KEY = REAL_KEEPA_KEY;
+      ANTHROPIC_KEY = REAL_ANTHROPIC_KEY;
     }
   }
 
   function saveKeys() {
-    const k = document.getElementById('inputKeepa').value.trim();
-    const a = document.getElementById('inputAnthropic').value.trim();
-    if (!k || !a) { alert('Preencha as duas chaves para continuar.'); return; }
-    sessionStorage.setItem('keepa_key', k);
-    sessionStorage.setItem('anthropic_key', a);
-    KEEPA_KEY = k;
-    ANTHROPIC_KEY = a;
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('uploadSection').style.display = 'flex';
+    const u = document.getElementById('inputUser').value.trim();
+    const p = document.getElementById('inputPass').value;
+    if (u === VALID_USER && p === VALID_PASS) {
+      sessionStorage.setItem('logged', '1');
+      KEEPA_KEY = REAL_KEEPA_KEY;
+      ANTHROPIC_KEY = REAL_ANTHROPIC_KEY;
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('uploadSection').style.display = 'flex';
+    } else {
+      document.getElementById('loginError').style.display = 'block';
+    }
   }
 
   function logout() {
