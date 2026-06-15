@@ -185,12 +185,37 @@
 </head>
 <body>
 
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#1c1c1e;border:1px solid #3a3a3c;border-radius:24px;width:100%;max-width:480px;padding:40px 36px;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px;">
+      <div style="width:48px;height:48px;background:#FFD700;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>
+      <div>
+        <div style="font-size:18px;font-weight:700;">Minerador de Produtos</div>
+        <div style="font-size:13px;color:#8e8e93;">All Vedere Commerce</div>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Chave API Keepa</label>
+      <input id="inputKeepa" type="password" placeholder="Cole sua chave do Keepa aqui" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
+    </div>
+    <div style="margin-bottom:32px;">
+      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Chave API Anthropic</label>
+      <input id="inputAnthropic" type="password" placeholder="sk-ant-..." style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
+    </div>
+    <button onclick="saveKeys()" style="width:100%;background:#FFD700;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Entrar</button>
+    <p style="margin-top:16px;font-size:12px;color:#636366;text-align:center;">As chaves ficam salvas apenas no seu navegador e nunca são enviadas para terceiros.</p>
+  </div>
+</div>
+
 <div class="header">
   <div class="header-icon">📦</div>
   <div>
     <h1>Minerador de Produtos</h1>
     <p>All Vedere Commerce · Keepa · Haiku 4.5</p>
   </div>
+  <div style="margin-left:auto;"><button onclick="logout()" style="background:#2c2c2e;color:#8e8e93;border:none;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;">🔒 Sair</button></div>
 </div>
 
 <div class="main">
@@ -282,13 +307,40 @@
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const KEEPA_KEY = 'drec60ragfh0v63jlmq09l7f6hpo8bqak1bfvdhn62982h7brmakl3n37bk5hfgf';
   const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
-  const ANTHROPIC_KEY = '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';
+
+  let KEEPA_KEY = sessionStorage.getItem('keepa_key') || '';
+  let ANTHROPIC_KEY = sessionStorage.getItem('anthropic_key') || '';
 
   let allProducts = [];
   let pendingConfirmation = null;
   let confirmResolve = null;
+
+  function checkLogin() {
+    if (!KEEPA_KEY || !ANTHROPIC_KEY) {
+      document.getElementById('loginOverlay').style.display = 'flex';
+      document.getElementById('uploadSection').style.display = 'none';
+    }
+  }
+
+  function saveKeys() {
+    const k = document.getElementById('inputKeepa').value.trim();
+    const a = document.getElementById('inputAnthropic').value.trim();
+    if (!k || !a) { alert('Preencha as duas chaves para continuar.'); return; }
+    sessionStorage.setItem('keepa_key', k);
+    sessionStorage.setItem('anthropic_key', a);
+    KEEPA_KEY = k;
+    ANTHROPIC_KEY = a;
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('uploadSection').style.display = 'flex';
+  }
+
+  function logout() {
+    sessionStorage.clear();
+    location.reload();
+  }
+
+  checkLogin();
 
   // ─── DRAG & DROP ───
   const uploadZone = document.getElementById('uploadZone');
