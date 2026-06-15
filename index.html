@@ -284,6 +284,7 @@
 
   const KEEPA_KEY = 'drec60ragfh0v63jlmq09l7f6hpo8bqak1bfvdhn62982h7brmakl3n37bk5hfgf';
   const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+  const ANTHROPIC_KEY = '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';
 
   let allProducts = [];
   let pendingConfirmation = null;
@@ -445,7 +446,7 @@
   async function identifyWithAI(product) {
     const resp = await fetch(ANTHROPIC_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
