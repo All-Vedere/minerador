@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- v3.0 -->
 <title>Minerador de Produtos · All Vedere Commerce</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
@@ -507,74 +508,40 @@
   }
 
   async function findOnAmazon(term1, term2) {
-    const asins = new Set();
     const candidates = [];
+    const seen = new Set();
 
     function extractASINs(html) {
-      const found = [];
       const pat = /\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
       let m;
       while ((m = pat.exec(html)) !== null) {
-        if (!asins.has(m[1])) { asins.add(m[1]); found.push(m[1]); }
+        if (!seen.has(m[1])) { seen.add(m[1]); candidates.push(m[1]); }
       }
-      return found;
     }
 
-    async function searchEngine(term, engine) {
-      try {
-        // Use DuckDuckGo instant answer API - returns JSON, no scraping needed
-        if (engine === 'ddg_api') {
-          const url = `https://api.duckduckgo.com/?q=${encodeURIComponent('site:amazon.com.br '+term)}&format=json&no_redirect=1&no_html=1&skip_disambig=1`;
-          const resp = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(8000) });
-          if (!resp.ok) return [];
-          const data = await resp.json();
-          const text = JSON.stringify(data);
-          return extractASINs(text);
-        }
-
-        // Use SerpApi free tier alternative - serpstack or similar
-        if (engine === 'amazon_direct') {
-          // Search directly on Amazon.com.br
-          const searchUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(term)}&language=pt_BR`;
-          const proxies = [
-            `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`,
-            `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(searchUrl)}`,
-          ];
-          for (const url of proxies) {
-            try {
-              const resp = await fetch(url, { signal: AbortSignal.timeout(10000) });
-              if (!resp.ok) continue;
-              const html = await resp.text();
-              if (html.length > 500) return extractASINs(html);
-            } catch {}
-          }
-          return [];
-        }
-
-        return [];
-      } catch { return []; }
+    async function searchAmazonBR(term) {
+      const searchUrl = `https://www.amazon.com.br/s?k=${encodeURIComponent(term)}&language=pt_BR`;
+      const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(searchUrl)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(searchUrl)}`,
+      ];
+      for (const proxyUrl of proxies) {
+        try {
+          const resp = await fetch(proxyUrl, { signal: AbortSignal.timeout(10000) });
+          if (!resp.ok) continue;
+          const html = await resp.text();
+          if (html.length > 1000) { extractASINs(html); return; }
+        } catch {}
+      }
     }
 
-    // Search Amazon directly + DuckDuckGo API
-    const results1 = await Promise.all([
-      searchEngine(term1, 'amazon_direct'),
-      searchEngine(term1, 'ddg_api'),
-    ]);
-    for (const r of results1.flat()) if (!candidates.includes(r)) candidates.push(r);
-
-    if (candidates.length < 2 && term2) {
-      const results2 = await Promise.all([
-        searchEngine(term2, 'amazon_direct'),
-        searchEngine(term2, 'ddg_api'),
-      ]);
-      for (const r of results2.flat()) if (!candidates.includes(r)) candidates.push(r);
-    }
+    await searchAmazonBR(term1);
+    if (candidates.length < 2 && term2) await searchAmazonBR(term2);
 
     if (!candidates.length) return { asin: null, rating: null, bsr: null, salesEstimate: null, reviewCount: null, amazonUrl: null };
-
-    // Fetch Amazon product page for the best candidate
     return await fetchAmazonProduct(candidates[0]);
   }
+
 
   async function fetchAmazonProduct(asin) {
     try {
@@ -582,8 +549,7 @@
       let html = '';
       const proxies = [
         `https://corsproxy.io/?${encodeURIComponent(amazonUrl)}`,
-        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(amazonUrl)}`,
-        `https://thingproxy.freeboard.io/fetch/${amazonUrl}`
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(amazonUrl)}`
       ];
       for (const url of proxies) {
         try {
