@@ -542,72 +542,56 @@ Retorne SOMENTE JSON válido:
     const asins = new Set();
     const results = [];
 
-    async function queryKeepa(term) {
+    // Use Amazon.com.br search to find ASINs, then query Keepa by ASIN
+    async function searchAmazon(term) {
       try {
-        // Use Keepa product search endpoint (correct format)
+        // Use DuckDuckGo to find Amazon.com.br ASINs for this product
+        const query = encodeURIComponent(`site:amazon.com.br ${term}`);
+        const url = `https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=1`;
+        const resp = await fetch(url);
+        if (!resp.ok) return;
+        const data = await resp.json();
+
+        // Extract ASINs from results URLs
+        const asinPattern = /amazon\.com\.br\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
+        const allText = JSON.stringify(data);
+        let match;
+        while ((match = asinPattern.exec(allText)) !== null) {
+          if (!asins.has(match[1])) {
+            asins.add(match[1]);
+            results.push(match[1]);
+          }
+        }
+      } catch {}
+    }
+
+    // Also try Keepa search endpoint (1 token per search)
+    async function searchKeepa(term) {
+      try {
         const params = new URLSearchParams({
           key: KEEPA_KEY,
-          domain: '11', // Amazon.com.br
+          domain: '11',
           type: 'product',
           term: term
         });
-        const url = `https://api.keepa.com/search?${params.toString()}`;
-        const resp = await fetch(url);
-        if (!resp.ok) {
-          // Fallback: try bestseller search by category
-          await queryKeepaByCategory(term);
-          return;
-        }
+        const resp = await fetch(`https://api.keepa.com/search?${params.toString()}`);
+        if (!resp.ok) return;
         const data = await resp.json();
         if (data.products) {
           for (const p of data.products) {
             if (p.asin && !asins.has(p.asin)) { asins.add(p.asin); results.push(p.asin); }
           }
-        } else if (data.asinList) {
-          for (const asin of data.asinList) {
-            if (!asins.has(asin)) { asins.add(asin); results.push(asin); }
-          }
         }
       } catch {}
     }
 
-    async function queryKeepaByCategory(term) {
-      try {
-        const params = new URLSearchParams({
-          key: KEEPA_KEY,
-          domain: '11',
-          type: 'category',
-          term: term
-        });
-        const url = `https://api.keepa.com/search?${params.toString()}`;
-        const resp = await fetch(url);
-        if (!resp.ok) return;
-        const data = await resp.json();
-        if (data.categoryIds && data.categoryIds.length > 0) {
-          // Get products from the found category
-          const catId = data.categoryIds[0];
-          const prodParams = new URLSearchParams({
-            key: KEEPA_KEY,
-            domain: '11',
-            category: catId,
-            sort: 'SALES_RANK',
-            perPage: '5'
-          });
-          const prodResp = await fetch(`https://api.keepa.com/query?${prodParams.toString()}`);
-          if (!prodResp.ok) return;
-          const prodData = await prodResp.json();
-          if (prodData.asinList) {
-            for (const asin of prodData.asinList) {
-              if (!asins.has(asin)) { asins.add(asin); results.push(asin); }
-            }
-          }
-        }
-      } catch {}
+    await searchAmazon(term1);
+    if (results.length < 3) await searchKeepa(term1);
+    if (term2 && results.length < 3) {
+      await searchAmazon(term2);
+      if (results.length < 3) await searchKeepa(term2);
     }
-
-    await queryKeepa(term1);
-    if (term2 && results.length < 3) await queryKeepa(term2);
-    return results.slice(0, 8);
+    return results.slice(0, 5);
   }
 
   async function fetchKeepaDetails(asins) {
