@@ -301,6 +301,8 @@
     if (!sessionStorage.getItem('logged')) {
       document.getElementById('loginOverlay').style.display = 'flex';
       document.getElementById('uploadSection').style.display = 'none';
+    } else {
+      document.getElementById('uploadSection').style.display = 'flex';
     }
   }
   function doLogin() {
@@ -700,7 +702,10 @@
 
   function hide(id) {
     const el = document.getElementById(id);
-    if (el) { el.style.display='none'; el.classList?.remove('visible'); }
+    if (!el) return;
+    if (id === 'progressSection') { el.classList.remove('visible'); }
+    else if (id === 'resultsSection') { el.classList.remove('visible'); }
+    else { el.style.display = 'none'; }
   }
 
   function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
