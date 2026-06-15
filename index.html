@@ -544,20 +544,62 @@ Retorne SOMENTE JSON válido:
 
     async function queryKeepa(term) {
       try {
-        const url = `https://api.keepa.com/query?key=${KEEPA_KEY}&selection=${encodeURIComponent(JSON.stringify({
-          perPage: 5,
-          page: 0,
-          sort: [["current_SALES_RANK", "asc"]],
-          keywordList: [term],
-          minSalesRank: 1,
-          maxSalesRank: 500000
-        }))}&domain=11`;
+        // Use Keepa product search endpoint (correct format)
+        const params = new URLSearchParams({
+          key: KEEPA_KEY,
+          domain: '11', // Amazon.com.br
+          type: 'product',
+          term: term
+        });
+        const url = `https://api.keepa.com/search?${params.toString()}`;
+        const resp = await fetch(url);
+        if (!resp.ok) {
+          // Fallback: try bestseller search by category
+          await queryKeepaByCategory(term);
+          return;
+        }
+        const data = await resp.json();
+        if (data.products) {
+          for (const p of data.products) {
+            if (p.asin && !asins.has(p.asin)) { asins.add(p.asin); results.push(p.asin); }
+          }
+        } else if (data.asinList) {
+          for (const asin of data.asinList) {
+            if (!asins.has(asin)) { asins.add(asin); results.push(asin); }
+          }
+        }
+      } catch {}
+    }
+
+    async function queryKeepaByCategory(term) {
+      try {
+        const params = new URLSearchParams({
+          key: KEEPA_KEY,
+          domain: '11',
+          type: 'category',
+          term: term
+        });
+        const url = `https://api.keepa.com/search?${params.toString()}`;
         const resp = await fetch(url);
         if (!resp.ok) return;
         const data = await resp.json();
-        if (data.asinList) {
-          for (const asin of data.asinList) {
-            if (!asins.has(asin)) { asins.add(asin); results.push(asin); }
+        if (data.categoryIds && data.categoryIds.length > 0) {
+          // Get products from the found category
+          const catId = data.categoryIds[0];
+          const prodParams = new URLSearchParams({
+            key: KEEPA_KEY,
+            domain: '11',
+            category: catId,
+            sort: 'SALES_RANK',
+            perPage: '5'
+          });
+          const prodResp = await fetch(`https://api.keepa.com/query?${prodParams.toString()}`);
+          if (!prodResp.ok) return;
+          const prodData = await prodResp.json();
+          if (prodData.asinList) {
+            for (const asin of prodData.asinList) {
+              if (!asins.has(asin)) { asins.add(asin); results.push(asin); }
+            }
           }
         }
       } catch {}
