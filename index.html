@@ -7,205 +7,165 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root {
-    --black: #0a0a0a;
-    --white: #ffffff;
-    --yellow: #FFD700;
-    --yellow-dim: #f5c800;
-    --green: #00c853;
-    --green-dim: #1a3d2b;
-    --red: #ff3b30;
-    --red-dim: #3d1a1a;
-    --mid: #ff9500;
-    --mid-dim: #3d2a00;
-    --gray: #1c1c1e;
-    --gray2: #2c2c2e;
-    --gray3: #3a3a3c;
-    --gray4: #636366;
-    --gray5: #aeaeb2;
-    --text: #f5f5f7;
-    --text-dim: #8e8e93;
+    --black: #0a0a0a; --white: #ffffff; --yellow: #FFD700; --yellow-dim: #f5c800;
+    --green: #00c853; --green-dim: #1a3d2b; --red: #ff3b30; --red-dim: #3d1a1a;
+    --mid: #ff9500; --mid-dim: #3d2a00; --gray: #1c1c1e; --gray2: #2c2c2e;
+    --gray3: #3a3a3c; --gray4: #636366; --text: #f5f5f7; --text-dim: #8e8e93;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: var(--black); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif; min-height: 100vh; }
 
-  .header { background: var(--gray); border-bottom: 1px solid var(--gray3); padding: 18px 32px; display: flex; align-items: center; gap: 16px; position: sticky; top: 0; z-index: 100; }
+  .header { background: var(--gray); border-bottom: 1px solid var(--gray3); padding: 16px 28px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100; }
   .header-icon { width: 36px; height: 36px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .header h1 { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  .header h1 { font-size: 16px; font-weight: 700; }
   .header p { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 
-  .main { max-width: 1300px; margin: 0 auto; padding: 32px 24px; }
-
-  /* UPLOAD */
-  .upload-section { display: flex; flex-direction: column; align-items: center; gap: 24px; }
-  .upload-zone { width: 100%; max-width: 560px; border: 2px dashed var(--gray3); border-radius: 20px; padding: 56px 32px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--gray); }
-  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--yellow); background: #1a1a0a; }
-  .upload-zone .icon { font-size: 48px; margin-bottom: 16px; }
-  .upload-zone h2 { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
-  .upload-zone p { font-size: 14px; color: var(--text-dim); line-height: 1.5; }
-  .upload-zone input { display: none; }
-
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+  .main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
   .btn-yellow { background: var(--yellow); color: var(--black); }
   .btn-yellow:hover { background: var(--yellow-dim); }
   .btn-ghost { background: var(--gray2); color: var(--text); }
   .btn-ghost:hover { background: var(--gray3); }
   .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* LOGIN */
+  #loginOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:999; align-items:center; justify-content:center; padding:20px; }
+  .login-box { background:var(--gray); border:1px solid var(--gray3); border-radius:24px; width:100%; max-width:420px; padding:40px 36px; }
+  .login-logo { display:flex; align-items:center; gap:14px; margin-bottom:32px; }
+  .login-logo-icon { width:48px; height:48px; background:var(--yellow); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .login-field { margin-bottom:16px; }
+  .login-field label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); display:block; margin-bottom:8px; }
+  .login-field input { width:100%; background:var(--gray2); border:1px solid var(--gray3); border-radius:10px; padding:12px 14px; color:var(--text); font-size:14px; outline:none; }
+  .login-field input:focus { border-color: var(--yellow); }
+  #loginError { display:none; background:var(--red-dim); color:var(--red); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:16px; }
+
+  /* UPLOAD */
+  .upload-section { display:flex; flex-direction:column; align-items:center; gap:24px; }
+  .upload-zone { width:100%; max-width:520px; border:2px dashed var(--gray3); border-radius:20px; padding:56px 32px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--gray); }
+  .upload-zone:hover, .upload-zone.drag-over { border-color:var(--yellow); background:#1a1a0a; }
+  .upload-zone .icon { font-size:48px; margin-bottom:16px; }
+  .upload-zone h2 { font-size:20px; font-weight:600; margin-bottom:8px; }
+  .upload-zone p { font-size:14px; color:var(--text-dim); line-height:1.5; }
+  .upload-zone input { display:none; }
+
+  /* PAGE RANGE */
+  #pageRangeSection { display:none; max-width:520px; margin:0 auto; }
+  .range-box { background:var(--gray); border:1px solid var(--gray3); border-radius:20px; padding:32px; }
+  .range-box h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
+  .range-box p { font-size:13px; color:var(--text-dim); margin-bottom:24px; }
+  .range-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .range-field label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); display:block; margin-bottom:8px; }
+  .range-field input { width:100%; background:var(--gray2); border:1px solid var(--gray3); border-radius:10px; padding:12px; color:var(--text); font-size:20px; font-weight:700; outline:none; text-align:center; }
+  .range-field input:focus { border-color:var(--yellow); }
+  .range-tip { background:var(--gray2); border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:var(--text-dim); line-height:1.5; }
+
+  /* FILTERS */
+  .filter-box { background:var(--gray); border:1px solid var(--gray3); border-radius:16px; padding:20px 24px; margin-bottom:16px; }
+  .filter-box h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); margin-bottom:14px; }
+  .filter-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .filter-item { display:flex; align-items:center; gap:10px; }
+  .filter-item label { font-size:14px; color:var(--text-dim); }
+  .filter-item input[type=number] { width:80px; background:var(--gray2); border:1px solid var(--gray3); border-radius:8px; padding:8px 10px; color:var(--text); font-size:14px; font-weight:600; outline:none; text-align:center; }
+  .filter-item input[type=number]:focus { border-color:var(--yellow); }
 
   /* PROGRESS */
-  .progress-section { display: none; flex-direction: column; gap: 20px; }
-  .progress-section.visible { display: flex; }
-  .progress-card { background: var(--gray); border-radius: 16px; padding: 24px; border: 1px solid var(--gray3); }
-  .progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-  .progress-header h3 { font-size: 15px; font-weight: 600; }
-  .progress-count { font-size: 13px; color: var(--text-dim); background: var(--gray2); padding: 4px 10px; border-radius: 20px; }
-  .progress-bar-track { height: 6px; background: var(--gray3); border-radius: 3px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--yellow); border-radius: 3px; transition: width 0.4s ease; width: 0%; }
-  .progress-status { margin-top: 10px; font-size: 13px; color: var(--text-dim); }
-
-  .live-feed { background: var(--gray); border-radius: 16px; border: 1px solid var(--gray3); overflow: hidden; max-height: 280px; }
-  .live-feed-header { padding: 14px 20px; border-bottom: 1px solid var(--gray3); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-dim); display: flex; align-items: center; gap: 8px; }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 1.2s infinite; }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-  .live-feed-items { padding: 8px 0; overflow-y: auto; max-height: 230px; }
-  .feed-item { padding: 10px 20px; font-size: 13px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #1a1a1a; animation: slideIn 0.2s ease; }
-  @keyframes slideIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-  .feed-item .feed-icon { font-size: 15px; flex-shrink: 0; }
-  .feed-item .feed-text { color: var(--text-dim); }
-  .feed-item .feed-name { color: var(--text); font-weight: 500; }
+  .progress-section { display:none; flex-direction:column; gap:16px; }
+  .progress-section.visible { display:flex; }
+  .progress-card { background:var(--gray); border-radius:16px; padding:24px; border:1px solid var(--gray3); }
+  .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+  .progress-header h3 { font-size:15px; font-weight:600; }
+  .progress-count { font-size:13px; color:var(--text-dim); background:var(--gray2); padding:4px 10px; border-radius:20px; }
+  .progress-bar-track { height:6px; background:var(--gray3); border-radius:3px; overflow:hidden; }
+  .progress-bar-fill { height:100%; background:var(--yellow); border-radius:3px; transition:width 0.4s ease; width:0%; }
+  .progress-status { margin-top:10px; font-size:13px; color:var(--text-dim); }
+  .live-feed { background:var(--gray); border-radius:16px; border:1px solid var(--gray3); overflow:hidden; max-height:260px; }
+  .live-feed-header { padding:12px 18px; border-bottom:1px solid var(--gray3); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); display:flex; align-items:center; gap:8px; }
+  .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .live-feed-items { padding:6px 0; overflow-y:auto; max-height:210px; }
+  .feed-item { padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #1a1a1a; animation:slideIn 0.2s ease; }
+  @keyframes slideIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
+  .feed-icon { font-size:14px; flex-shrink:0; }
+  .feed-name { color:var(--text); font-weight:500; }
+  .feed-text { color:var(--text-dim); }
 
   /* RESULTS */
-  .results-section { display: none; }
-  .results-section.visible { display: block; }
-  .results-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-  .results-header h2 { font-size: 22px; font-weight: 700; }
-  .results-header p { font-size: 14px; color: var(--text-dim); margin-top: 2px; }
+  .results-section { display:none; }
+  .results-section.visible { display:block; }
+  .results-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
+  .results-header h2 { font-size:22px; font-weight:700; }
+  .results-header p { font-size:14px; color:var(--text-dim); margin-top:2px; }
 
-  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
-  .stat-card { background: var(--gray); border-radius: 14px; padding: 18px; border: 1px solid var(--gray3); }
-  .stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.7px; color: var(--text-dim); margin-bottom: 8px; }
-  .stat-card .value { font-size: 26px; font-weight: 700; letter-spacing: -1px; }
-  .stat-card.high .value { color: var(--green); }
-  .stat-card.mid .value { color: var(--mid); }
-  .stat-card.low .value { color: var(--red); }
-  .stat-card.total .value { color: var(--yellow); }
+  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+  .stat-card { background:var(--gray); border-radius:14px; padding:16px 18px; border:1px solid var(--gray3); }
+  .stat-card .label { font-size:11px; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); margin-bottom:8px; }
+  .stat-card .value { font-size:26px; font-weight:700; letter-spacing:-1px; }
+  .stat-card.approved .value { color:var(--green); }
+  .stat-card.rejected .value { color:var(--red); }
+  .stat-card.nodata .value { color:var(--gray4); }
+  .stat-card.total .value { color:var(--yellow); }
 
-  .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px; background: var(--gray); border: 1px solid var(--gray3); border-radius: 16px; padding: 14px 20px; }
-  .filters { display: flex; gap: 8px; flex-wrap: wrap; }
-  .filter-btn { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--gray3); background: var(--gray2); color: var(--text-dim); transition: all 0.15s; }
-  .filter-btn.active { background: var(--yellow); color: var(--black); border-color: var(--yellow); font-weight: 600; }
+  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; background:var(--gray); border:1px solid var(--gray3); border-radius:14px; padding:12px 18px; }
+  .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+  .tab-btn { padding:6px 14px; border-radius:20px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--gray3); background:var(--gray2); color:var(--text-dim); transition:all 0.15s; }
+  .tab-btn.active { background:var(--yellow); color:var(--black); border-color:var(--yellow); font-weight:600; }
 
-  /* PRODUCT CARDS */
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; }
+  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
+  .product-card { background:var(--gray); border-radius:14px; border:1px solid var(--gray3); overflow:hidden; transition:transform 0.15s; }
+  .product-card:hover { transform:translateY(-2px); }
+  .product-card.approved { border-left:3px solid var(--green); }
+  .product-card.rejected { border-left:3px solid var(--red); }
+  .product-card.nodata { border-left:3px solid var(--gray4); }
 
-  .product-card { background: var(--gray); border-radius: 16px; border: 1px solid var(--gray3); overflow: hidden; transition: transform 0.15s, border-color 0.15s; }
-  .product-card:hover { transform: translateY(-2px); border-color: var(--gray4); }
-  .product-card.high-demand { border-left: 3px solid var(--green); }
-  .product-card.mid-demand { border-left: 3px solid var(--mid); }
-  .product-card.low-demand { border-left: 3px solid var(--red); }
-  .product-card.unknown-demand { border-left: 3px solid var(--gray4); }
+  .card-top { display:flex; gap:12px; padding:14px; align-items:flex-start; }
+  .product-img { width:72px; height:72px; border-radius:10px; object-fit:contain; background:#111; flex-shrink:0; border:1px solid var(--gray3); }
+  .product-info { flex:1; min-width:0; }
+  .product-model { font-size:11px; color:var(--text-dim); font-weight:500; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
+  .product-name { font-size:13px; font-weight:600; line-height:1.3; margin-bottom:6px; }
 
-  .card-top { display: flex; gap: 14px; padding: 16px; align-items: flex-start; }
-  .product-img { width: 80px; height: 80px; border-radius: 10px; object-fit: contain; background: #111; flex-shrink: 0; border: 1px solid var(--gray3); }
-  .product-info { flex: 1; min-width: 0; }
-  .product-model { font-size: 11px; color: var(--text-dim); font-weight: 500; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
-  .product-name { font-size: 14px; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
-  .demand-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-  .demand-badge.high { background: var(--green-dim); color: var(--green); }
-  .demand-badge.mid { background: var(--mid-dim); color: var(--mid); }
-  .demand-badge.low { background: var(--red-dim); color: var(--red); }
-  .demand-badge.unknown { background: var(--gray3); color: var(--text-dim); }
+  .status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
+  .status-badge.approved { background:var(--green-dim); color:var(--green); }
+  .status-badge.rejected { background:var(--red-dim); color:var(--red); }
+  .status-badge.nodata { background:var(--gray3); color:var(--text-dim); }
 
-  /* METRICS GRID */
-  .card-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--gray3); border-top: 1px solid var(--gray3); }
-  .metric { background: var(--gray); padding: 11px 14px; }
-  .metric .m-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-dim); margin-bottom: 4px; }
-  .metric .m-value { font-size: 14px; font-weight: 700; }
-  .metric .m-value.good { color: var(--green); }
-  .metric .m-value.warn { color: var(--mid); }
-  .metric .m-value.bad { color: var(--red); }
+  .card-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px; background:var(--gray3); border-top:1px solid var(--gray3); }
+  .metric { background:var(--gray); padding:10px 14px; }
+  .metric .m-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); margin-bottom:3px; }
+  .metric .m-value { font-size:15px; font-weight:700; }
+  .metric .m-value.good { color:var(--green); }
+  .metric .m-value.warn { color:var(--mid); }
+  .metric .m-value.bad { color:var(--red); }
 
-  /* SELLERS SECTION */
-  .sellers-section { border-top: 1px solid var(--gray3); }
-  .sellers-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; user-select: none; }
-  .sellers-header span { font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.6px; }
-  .sellers-toggle { font-size: 11px; color: var(--yellow); cursor: pointer; }
-  .sellers-list { display: none; padding: 0 16px 12px; flex-direction: column; gap: 8px; }
-  .sellers-list.open { display: flex; }
+  .card-footer { padding:9px 14px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--gray3); }
+  .card-link { font-size:12px; color:var(--yellow); text-decoration:none; }
+  .card-link:hover { text-decoration:underline; }
 
-  .seller-row { background: var(--gray2); border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; gap: 10px; }
-  .seller-rank { font-size: 11px; font-weight: 700; color: var(--text-dim); width: 20px; flex-shrink: 0; }
-  .seller-info { flex: 1; min-width: 0; }
-  .seller-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .seller-asin { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-  .seller-metrics { display: flex; gap: 12px; flex-shrink: 0; text-align: right; }
-  .seller-metric { font-size: 11px; }
-  .seller-metric .sm-label { color: var(--text-dim); }
-  .seller-metric .sm-val { font-weight: 700; font-size: 13px; }
-  .seller-metric .sm-val.good { color: var(--green); }
-  .seller-metric .sm-val.warn { color: var(--mid); }
-  .buybox-badge { font-size: 10px; background: var(--yellow); color: var(--black); padding: 2px 7px; border-radius: 4px; font-weight: 700; flex-shrink: 0; }
-
-  /* CONFIRM MODAL */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--gray); border-radius: 20px; border: 1px solid var(--gray3); width: 100%; max-width: 560px; max-height: 80vh; overflow-y: auto; }
-  .modal-header { padding: 20px 24px 16px; border-bottom: 1px solid var(--gray3); display: flex; align-items: flex-start; gap: 14px; }
-  .modal-img { width: 64px; height: 64px; border-radius: 10px; object-fit: contain; background: #111; border: 1px solid var(--gray3); flex-shrink: 0; }
-  .modal-header h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .modal-header p { font-size: 13px; color: var(--text-dim); }
-  .modal-body { padding: 16px 24px; }
-  .modal-body h4 { font-size: 13px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 12px; }
-  .asin-option { border: 1px solid var(--gray3); border-radius: 12px; padding: 14px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; display: flex; gap: 12px; align-items: flex-start; }
-  .asin-option:hover { border-color: var(--yellow); background: #1a1a0a; }
-  .asin-option.selected { border-color: var(--yellow); background: #1a1a0a; }
-  .asin-thumb { width: 52px; height: 52px; border-radius: 8px; object-fit: contain; background: #111; flex-shrink: 0; border: 1px solid var(--gray3); }
-  .asin-info { flex: 1; min-width: 0; }
-  .asin-title { font-size: 13px; font-weight: 600; line-height: 1.3; margin-bottom: 6px; }
-  .asin-meta { display: flex; gap: 10px; flex-wrap: wrap; }
-  .asin-tag { font-size: 11px; color: var(--text-dim); background: var(--gray2); padding: 2px 8px; border-radius: 6px; }
-  .asin-tag.bsr-good { color: var(--green); background: var(--green-dim); }
-  .asin-tag.bsr-mid { color: var(--mid); background: var(--mid-dim); }
-  .asin-tag.bsr-bad { color: var(--red); background: var(--red-dim); }
-  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--gray3); display: flex; gap: 10px; justify-content: flex-end; }
-
-  .card-footer { padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--gray3); }
-  .card-link { font-size: 12px; color: var(--text-dim); text-decoration: none; display: flex; align-items: center; gap: 4px; }
-  .card-link:hover { color: var(--yellow); }
-  .confirm-btn { font-size: 11px; padding: 5px 12px; border-radius: 6px; cursor: pointer; border: 1px solid var(--yellow); background: transparent; color: var(--yellow); font-weight: 600; transition: all 0.15s; }
-  .confirm-btn:hover { background: var(--yellow); color: var(--black); }
-
-  @media (max-width: 640px) {
-    .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .products-grid { grid-template-columns: 1fr; }
-    .main { padding: 20px 16px; }
-    .card-metrics { grid-template-columns: 1fr 1fr; }
-  }
+  @media(max-width:640px){ .stats-row{grid-template-columns:repeat(2,1fr)} .products-grid{grid-template-columns:1fr} .main{padding:20px 16px} }
 </style>
 </head>
 <body>
 
-
-<!-- LOGIN OVERLAY -->
+<!-- LOGIN -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
-  <div style="background:#1c1c1e;border:1px solid #3a3a3c;border-radius:24px;width:100%;max-width:420px;padding:40px 36px;">
-    <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px;">
-      <div style="width:48px;height:48px;background:#FFD700;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;">📦</div>
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-icon">📦</div>
       <div>
         <div style="font-size:18px;font-weight:700;">Minerador de Produtos</div>
-        <div style="font-size:13px;color:#8e8e93;">All Vedere Commerce</div>
+        <div style="font-size:13px;color:var(--text-dim);">All Vedere Commerce</div>
       </div>
     </div>
-    <div style="margin-bottom:16px;">
-      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Usuário</label>
-      <input id="inputUser" type="text" placeholder="Digite seu usuário" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;">
+    <div class="login-field">
+      <label>Usuário</label>
+      <input id="inputUser" type="text" placeholder="Digite seu usuário">
     </div>
-    <div style="margin-bottom:28px;">
-      <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:#8e8e93;display:block;margin-bottom:8px;">Senha</label>
-      <input id="inputPass" type="password" placeholder="Digite sua senha" style="width:100%;background:#2c2c2e;border:1px solid #3a3a3c;border-radius:10px;padding:12px 14px;color:#f5f5f7;font-size:14px;outline:none;" onkeydown="if(event.key==='Enter')saveKeys()">
+    <div class="login-field" style="margin-bottom:24px;">
+      <label>Senha</label>
+      <input id="inputPass" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <div id="loginError" style="display:none;background:#3d1a1a;color:#ff3b30;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px;">Usuário ou senha incorretos.</div>
-    <button onclick="saveKeys()" style="width:100%;background:#FFD700;color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Entrar</button>
+    <div id="loginError">Usuário ou senha incorretos.</div>
+    <button onclick="doLogin()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Entrar</button>
   </div>
 </div>
 
@@ -213,9 +173,11 @@
   <div class="header-icon">📦</div>
   <div>
     <h1>Minerador de Produtos</h1>
-    <p>All Vedere Commerce · Keepa · Haiku 4.5</p>
+    <p>All Vedere Commerce</p>
   </div>
-  <div style="margin-left:auto;"><button onclick="logout()" style="background:#2c2c2e;color:#8e8e93;border:none;border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;">🔒 Sair</button></div>
+  <div class="header-right">
+    <button onclick="doLogout()" style="background:var(--gray2);color:var(--text-dim);border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;">🔒 Sair</button>
+  </div>
 </div>
 
 <div class="main">
@@ -225,35 +187,43 @@
     <div class="upload-zone" id="uploadZone">
       <div class="icon">📂</div>
       <h2>Suba o catálogo do fornecedor</h2>
-      <p>Arraste o PDF aqui ou clique para selecionar<br>O app analisa cada produto automaticamente</p>
+      <p>Arraste o PDF aqui ou clique para selecionar</p>
       <input type="file" id="fileInput" accept=".pdf">
     </div>
     <button class="btn btn-yellow" onclick="document.getElementById('fileInput').click()">➕ Selecionar PDF</button>
   </div>
 
-  <!-- PAGE RANGE SELECTOR -->
-  <div id="pageRangeSection" style="display:none;max-width:560px;margin:0 auto;padding:32px 24px;">
-    <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:20px;padding:32px;">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
-        <div style="width:44px;height:44px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;">📄</div>
-        <div>
-          <h2 style="font-size:18px;font-weight:700;" id="pageRangeTitle">Selecionar páginas</h2>
-          <p style="font-size:13px;color:var(--text-dim);" id="pageRangeSubtitle"></p>
+  <!-- PAGE RANGE -->
+  <div id="pageRangeSection">
+    <div class="range-box">
+      <h2>Selecionar páginas</h2>
+      <p id="pageRangeSubtitle"></p>
+      <div class="range-grid">
+        <div class="range-field">
+          <label>Página inicial</label>
+          <input id="pageStart" type="number" min="1" value="3">
+        </div>
+        <div class="range-field">
+          <label>Página final</label>
+          <input id="pageEnd" type="number" min="1" value="50">
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
-        <div>
-          <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-dim);display:block;margin-bottom:8px;">Página inicial</label>
-          <input id="pageStart" type="number" min="1" value="3" style="width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;text-align:center;">
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-dim);display:block;margin-bottom:8px;">Página final</label>
-          <input id="pageEnd" type="number" min="1" value="50" style="width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;text-align:center;">
+      <div class="filter-box">
+        <h3>🎯 Filtros de aprovação</h3>
+        <div class="filter-row">
+          <div class="filter-item">
+            <label>Avaliação mínima</label>
+            <input type="number" id="filterStars" value="4" min="1" max="5" step="0.1">
+            <label>⭐</label>
+          </div>
+          <div class="filter-item">
+            <label>Vendas mínimas/mês</label>
+            <input type="number" id="filterSales" value="100" min="1">
+            <label>unid.</label>
+          </div>
         </div>
       </div>
-      <div style="background:var(--gray2);border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:13px;color:var(--text-dim);">
-        💡 Dica: comece com intervalos de <strong style="color:var(--text);">50 páginas</strong> para respeitar o limite de tokens do Keepa. Você pode rodar múltiplas sessões ao longo do dia.
-      </div>
+      <div class="range-tip">💡 Produtos com avaliação ≥ <strong id="tipStars">4</strong>⭐ e estimativa ≥ <strong id="tipSales">100</strong> vendas/mês serão marcados como <span style="color:var(--green)">✓ Aprovado</span>.</div>
       <div style="display:flex;gap:10px;">
         <button class="btn btn-ghost" style="flex:1" onclick="resetApp()">↩ Voltar</button>
         <button class="btn btn-yellow" style="flex:2" onclick="startAnalysis()">▶ Iniciar análise</button>
@@ -265,7 +235,7 @@
   <div class="progress-section" id="progressSection">
     <div class="progress-card">
       <div class="progress-header">
-        <h3 id="progressTitle">Lendo o PDF...</h3>
+        <h3 id="progressTitle">Analisando...</h3>
         <span class="progress-count" id="progressCount">0 / 0</span>
       </div>
       <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar"></div></div>
@@ -281,10 +251,10 @@
   <div class="results-section" id="resultsSection">
     <div class="results-header">
       <div>
-        <h2 id="resultsTitle">Relatório de Demanda</h2>
+        <h2>Relatório de Demanda</h2>
         <p id="resultsSubtitle"></p>
       </div>
-      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button class="btn btn-ghost" onclick="resetApp()">↩ Novo catálogo</button>
         <button class="btn btn-yellow" onclick="exportCSV()">⬇ Exportar CSV</button>
       </div>
@@ -292,20 +262,19 @@
 
     <div class="stats-row">
       <div class="stat-card total"><div class="label">Total Analisado</div><div class="value" id="statTotal">0</div></div>
-      <div class="stat-card high"><div class="label">Alta Demanda</div><div class="value" id="statHigh">0</div></div>
-      <div class="stat-card mid"><div class="label">Média Demanda</div><div class="value" id="statMid">0</div></div>
-      <div class="stat-card low"><div class="label">Baixa / Incerto</div><div class="value" id="statLow">0</div></div>
+      <div class="stat-card approved"><div class="label">✓ Aprovados</div><div class="value" id="statApproved">0</div></div>
+      <div class="stat-card rejected"><div class="label">✗ Reprovados</div><div class="value" id="statRejected">0</div></div>
+      <div class="stat-card nodata"><div class="label">Sem dados</div><div class="value" id="statNodata">0</div></div>
     </div>
 
     <div class="toolbar">
-      <div class="filters">
-        <button class="filter-btn active" onclick="filterProducts('all',this)">Todos</button>
-        <button class="filter-btn" onclick="filterProducts('high',this)">🟢 Alta</button>
-        <button class="filter-btn" onclick="filterProducts('mid',this)">🟡 Média</button>
-        <button class="filter-btn" onclick="filterProducts('low',this)">🔴 Baixa</button>
-        <button class="filter-btn" onclick="filterProducts('unknown',this)">⚪ Sem dados</button>
+      <div class="filter-tabs">
+        <button class="tab-btn active" onclick="filterCards('all',this)">Todos</button>
+        <button class="tab-btn" onclick="filterCards('approved',this)">✓ Aprovados</button>
+        <button class="tab-btn" onclick="filterCards('rejected',this)">✗ Reprovados</button>
+        <button class="tab-btn" onclick="filterCards('nodata',this)">Sem dados</button>
       </div>
-      <span style="font-size:12px;color:var(--text-dim)">Ordenado por demanda</span>
+      <span style="font-size:12px;color:var(--text-dim);">Ordenado por avaliação</span>
     </div>
 
     <div class="products-grid" id="productsGrid"></div>
@@ -313,191 +282,119 @@
 
 </div>
 
-<!-- CONFIRM MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <div class="modal-header">
-      <img class="modal-img" id="modalImg" src="" alt="">
-      <div>
-        <h3 id="modalTitle">Confirmar produto</h3>
-        <p id="modalSubtitle">Selecione qual anúncio da Amazon corresponde a este produto</p>
-      </div>
-    </div>
-    <div class="modal-body">
-      <h4>Anúncios encontrados na Amazon</h4>
-      <div id="asinOptions"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost btn-sm" onclick="skipProduct()">Pular produto</button>
-      <button class="btn btn-yellow btn-sm" onclick="confirmProduct()">Confirmar seleção</button>
-    </div>
-  </div>
-</div>
-
 <script>
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
-
-  let KEEPA_KEY = '';
-  let ANTHROPIC_KEY = '';
-
-  let allProducts = [];
-  let pendingConfirmation = null;
-  let confirmResolve = null;
-
   const VALID_USER = 'Allvedere';
   const VALID_PASS = 'Lelisx@nd4';
-  const REAL_KEEPA_KEY = ['drec60ragfh0v63jlmq0','9l7f6hpo8bqak1bfvdhn','62982h7brmakl3n37bk5','hfgf'].join('');
-  const REAL_ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6nxPVlaaMTm','uhudEoOsJOxe2W4Zv8iv','kZbAR9G8_3-kMvvEUYg-','vS9dFAAA'].join('');
+  const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+  const ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6nxPVlaaMTm','uhudEoOsJOxe2W4Zv8iv','kZbAR9G8_3-kMvvEUYg-','vS9dFAAA'].join('');
 
+  let allProducts = [];
+  let totalPdfPages = 0;
+  let filterStars = 4;
+  let filterSales = 100;
+  let pdfFile = null;
+
+  // ─── LOGIN ───
   function checkLogin() {
-    const logged = sessionStorage.getItem('logged');
-    if (!logged) {
+    if (!sessionStorage.getItem('logged')) {
       document.getElementById('loginOverlay').style.display = 'flex';
       document.getElementById('uploadSection').style.display = 'none';
-    } else {
-      KEEPA_KEY = REAL_KEEPA_KEY;
-      ANTHROPIC_KEY = REAL_ANTHROPIC_KEY;
     }
   }
-
-  function saveKeys() {
+  function doLogin() {
     const u = document.getElementById('inputUser').value.trim();
     const p = document.getElementById('inputPass').value;
     if (u === VALID_USER && p === VALID_PASS) {
-      sessionStorage.setItem('logged', '1');
-      KEEPA_KEY = REAL_KEEPA_KEY;
-      ANTHROPIC_KEY = REAL_ANTHROPIC_KEY;
+      sessionStorage.setItem('logged','1');
       document.getElementById('loginOverlay').style.display = 'none';
       document.getElementById('uploadSection').style.display = 'flex';
     } else {
       document.getElementById('loginError').style.display = 'block';
     }
   }
-
-  function logout() {
-    sessionStorage.clear();
-    location.reload();
-  }
-
+  function doLogout() { sessionStorage.clear(); location.reload(); }
   checkLogin();
+
+  // Update tip text when filters change
+  document.getElementById('filterStars').addEventListener('input', e => document.getElementById('tipStars').textContent = e.target.value);
+  document.getElementById('filterSales').addEventListener('input', e => document.getElementById('tipSales').textContent = e.target.value);
 
   // ─── DRAG & DROP ───
   const uploadZone = document.getElementById('uploadZone');
   uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
   uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault(); uploadZone.classList.remove('drag-over');
-    const f = e.dataTransfer.files[0];
-    if (f && f.type === 'application/pdf') processFile(f);
-  });
+  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f?.type==='application/pdf') processFile(f); });
   document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
 
-  // ─── MAIN FLOW ───
-  let allExtractedProducts = [];
-  let totalPdfPages = 0;
-
+  // ─── PROCESS FILE ───
   async function processFile(file) {
+    pdfFile = file;
     showProgress();
     setProgressTitle('Lendo o PDF...');
-    addFeedItem('📄', 'Arquivo', file.name);
+    addFeedItem('📄', file.name, 'carregando...');
     try {
-      // First just get page count quickly
       const buf = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
       totalPdfPages = pdf.numPages;
-      addFeedItem('📋', 'Catálogo', `${totalPdfPages} páginas encontradas`);
-
-      // Store file reference and show page selector
-      window._pdfFile = file;
-      showPageRangeSelector(totalPdfPages);
-    } catch (err) {
-      console.error(err);
-      showError('Erro: ' + err.message);
-    }
+      addFeedItem('📋', `${totalPdfPages} páginas`, 'encontradas');
+      showPageRange(totalPdfPages);
+    } catch(e) { showError('Erro ao ler PDF: ' + e.message); }
   }
 
-  function showPageRangeSelector(totalPages) {
-    document.getElementById('progressSection').classList.remove('visible');
+  function showPageRange(total) {
+    hide('progressSection'); hide('uploadSection');
     document.getElementById('pageRangeSection').style.display = 'block';
-    document.getElementById('pageRangeTitle').textContent = 'Selecionar intervalo de páginas';
-    document.getElementById('pageRangeSubtitle').textContent = `Catálogo com ${totalPages} páginas no total`;
-    document.getElementById('pageStart').value = 3;
-    document.getElementById('pageEnd').value = Math.min(52, totalPages);
-    document.getElementById('pageEnd').max = totalPages;
-    document.getElementById('pageStart').max = totalPages;
+    document.getElementById('pageRangeSubtitle').textContent = `Catálogo com ${total} páginas`;
+    document.getElementById('pageEnd').value = Math.min(52, total);
+    document.getElementById('pageEnd').max = total;
+    document.getElementById('pageStart').max = total;
   }
 
   async function startAnalysis() {
     const start = parseInt(document.getElementById('pageStart').value);
     const end = parseInt(document.getElementById('pageEnd').value);
+    filterStars = parseFloat(document.getElementById('filterStars').value) || 4;
+    filterSales = parseInt(document.getElementById('filterSales').value) || 100;
 
-    if (!start || !end || start > end) { alert('Intervalo de páginas inválido.'); return; }
-    if (end > totalPdfPages) { alert(`O catálogo tem apenas ${totalPdfPages} páginas.`); return; }
+    if (!start || !end || start > end || end > totalPdfPages) { alert('Intervalo de páginas inválido.'); return; }
 
     document.getElementById('pageRangeSection').style.display = 'none';
     showProgress();
-    setProgressTitle(`Extraindo produtos das páginas ${start} a ${end}...`);
-    addFeedItem('📄', 'Intervalo', `Páginas ${start} a ${end} (${end - start + 1} páginas)`);
+    setProgressTitle(`Extraindo produtos das páginas ${start}–${end}...`);
 
     try {
-      const products = await extractProductsFromPDFRange(window._pdfFile, start, end);
-      if (!products.length) { showError('Nenhum produto encontrado nesse intervalo de páginas.'); return; }
-      addFeedItem('✅', 'Encontrados', `${products.length} produtos nas páginas selecionadas`);
-      allExtractedProducts = products;
-      await analyzeProducts(products);
-    } catch (err) {
-      console.error(err);
-      showError('Erro: ' + err.message);
-    }
+      const products = await extractFromPDF(pdfFile, start, end);
+      if (!products.length) { showError('Nenhum produto encontrado nesse intervalo.'); return; }
+      addFeedItem('✅', `${products.length} produtos`, 'encontrados — iniciando análise');
+      await analyzeAll(products);
+    } catch(e) { showError('Erro: ' + e.message); }
   }
 
   // ─── PDF EXTRACTION ───
-  async function extractProductsFromPDFRange(file, startPage, endPage) {
+  async function extractFromPDF(file, startPage, endPage) {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
     const products = [];
     const total = endPage - startPage + 1;
-    const BATCH = 4;
 
-    for (let i = startPage; i <= endPage; i += BATCH) {
+    for (let i = startPage; i <= endPage; i += 4) {
       const batch = [];
-      for (let p = i; p < i + BATCH && p <= endPage; p++) batch.push(p);
-      const results = await Promise.all(batch.map(p => extractPageProducts(pdf, p)));
-      for (const r of results) products.push(...r);
-      updateProgress(Math.min(i + BATCH - startPage, total), total, `Página ${Math.min(i + BATCH - 1, endPage)} de ${endPage}...`);
+      for (let p = i; p < i+4 && p <= endPage; p++) batch.push(p);
+      const res = await Promise.all(batch.map(p => extractPage(pdf, p)));
+      for (const r of res) products.push(...r);
+      updateProgress(Math.min(i+3, endPage) - startPage + 1, total, `Página ${Math.min(i+3,endPage)} de ${endPage}...`);
     }
 
     const seen = new Set();
-    return products.filter(p => { if (seen.has(p.model)) return false; seen.add(p.model); return true; });
+    return products.filter(p => { if(seen.has(p.model)) return false; seen.add(p.model); return true; });
   }
 
-  async function extractProductsFromPDF(file) {
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    const total = pdf.numPages;
-    setProgressTitle(`Extraindo produtos (${total} páginas)...`);
-    updateProgress(0, total, 'Analisando páginas...');
-
-    const products = [];
-    const BATCH = 4;
-    for (let i = 3; i <= total; i += BATCH) {
-      const batch = [];
-      for (let p = i; p < i + BATCH && p <= total; p++) batch.push(p);
-      const results = await Promise.all(batch.map(p => extractPageProducts(pdf, p)));
-      for (const r of results) products.push(...r);
-      updateProgress(Math.min(i + BATCH - 1, total) - 2, total - 2, `Página ${Math.min(i + BATCH - 1, total)} de ${total}...`);
-    }
-
-    const seen = new Set();
-    return products.filter(p => { if (seen.has(p.model)) return false; seen.add(p.model); return true; });
-  }
-
-  async function extractPageProducts(pdf, pageNum) {
+  async function extractPage(pdf, pageNum) {
     try {
       const page = await pdf.getPage(pageNum);
-      const text = (await page.getTextContent()).items.map(i => i.str).join(' ');
+      const text = (await page.getTextContent()).items.map(i=>i.str).join(' ');
       const modelMatches = [...text.matchAll(/MODELO[:\s]+([A-Z]{2,3}[-\s]?[A-Z0-9]{3,8})/gi)];
       if (!modelMatches.length) return [];
 
@@ -511,40 +408,18 @@
       const rows = Math.ceil(modelMatches.length / cols);
 
       for (let idx = 0; idx < modelMatches.length; idx++) {
-        const model = modelMatches[idx][1].trim().replace(/\s+/, '-');
+        const model = modelMatches[idx][1].trim().replace(/\s+/,'-');
         const name = extractName(text, idx);
         const prices = [...text.matchAll(/Unid\.CX[:\s]*([\d,]+)/g)];
         const price = prices[idx] ? prices[idx][1] : null;
-        const qtys = [...text.matchAll(/(\d+)(?:PCS|Kits|KIT)\/CX/gi)];
-        const qty = qtys[idx] ? qtys[idx][0] : null;
 
-        const colW = canvas.width / cols;
-        const rowH = canvas.height / rows;
-        const row = Math.floor(idx / cols), col = idx % cols;
+        const colW = canvas.width / cols, rowH = canvas.height / rows;
+        const row = Math.floor(idx/cols), col = idx%cols;
         const crop = document.createElement('canvas');
         crop.width = colW; crop.height = rowH;
-        crop.getContext('2d').drawImage(canvas, col * colW, row * rowH + 30, colW, rowH - 30, 0, 0, colW, rowH);
+        crop.getContext('2d').drawImage(canvas, col*colW, row*rowH+30, colW, rowH-30, 0, 0, colW, rowH);
 
-        // Detect category from page header text
-        const catPatterns = [
-          'Novidades', 'Natal', 'Promoções', 'Voltou ao Estoque', 'Acampamentos',
-          'Papel de Parede', 'Cadeira Dobrável', 'Balanças', 'Papelaria', 'Carrinhos',
-          'Massageadores', 'Calculadora', 'Infláveis', 'Bandagens e Proteções',
-          'Ventilador', 'Área Pet', 'Relógios', 'Sapateiras/Roupas', 'Torneiras e Chuveiros',
-          'Suportes', 'Para Cozinha', 'Mop/Esfregão', 'Tomadas', 'Para Banheiro',
-          'Aspirador', 'Ring LED', 'Kit Organizador', 'Tapete', 'Luminárias',
-          'Porta Jóias', 'Itens domésticos', 'Difusor/Umidificador', 'Necessaires',
-          'Processadores', 'Lanternas', 'Para Marmitas', 'Formas', 'Câmeras',
-          'Bolsas e Mochilas', 'Lancheiras', 'Caixas de Som', 'Itens de Maquiagem',
-          'Potes Herméticos', 'Microfones', 'Espelho', 'Hub USB', 'Cabos',
-          'Lixeira', 'Informática', 'Talheres', 'Projetores', 'Guarda-Chuvas',
-          'Cadeira de Escritório', 'Jogo Americano'
-        ];
-        let detectedCategory = 'Geral';
-        for (const cat of catPatterns) {
-          if (text.includes(cat)) { detectedCategory = cat; break; }
-        }
-        products.push({ model, name, price, qty, imgData: crop.toDataURL('image/jpeg', 0.75).split(',')[1], pageNum, category: detectedCategory });
+        products.push({ model, name, price, imgData: crop.toDataURL('image/jpeg',0.75).split(',')[1], pageNum });
       }
       return products;
     } catch { return []; }
@@ -552,35 +427,31 @@
 
   function extractName(text, idx) {
     const patterns = [
-      /Bandeja\s+\w[\w\s]{3,30}/i, /Imã\s+de\s+[\w\s]{4,30}/i,
-      /Batedeira\s+[\w\s]{4,40}/i, /Batedor\s+[\w\s]{4,40}/i,
-      /Moedor\s+[\w\s]{4,30}/i, /Espumador\s+[\w\s]{4,40}/i,
-      /Armário\s+[\w\s]{4,30}/i, /Kit\s+[\w\s]{4,40}/i,
-      /Pincel\s+[\w\s]{4,30}/i, /Bolsa\s+[\w\s]{4,40}/i,
-      /Mochila\s+[\w\s]{4,30}/i, /Caixa\s+[\w\s]{4,40}/i,
-      /Fone\s+[\w\s]{4,30}/i, /Relógio\s+[\w\s]{4,30}/i,
-      /Suporte\s+[\w\s]{4,30}/i, /Luminária\s+[\w\s]{4,30}/i,
-      /Projetor\s+[\w\s]{4,30}/i, /Câmera\s+[\w\s]{4,30}/i,
-      /Ventilador\s+[\w\s]{4,30}/i, /Tomada\s+[\w\s]{4,30}/i,
-      /Hub\s+USB[\w\s]{0,20}/i, /Tapete\s+[\w\s]{4,30}/i,
-      /Lixeira\s+[\w\s]{4,30}/i, /Dupla\s+Haste[\w\s]{4,30}/i,
-      /Alto[\-\s]?falante[\w\s]{4,30}/i, /Caixa\s+de\s+Som[\w\s]{0,20}/i,
+      /Bandeja\s+[\w\s]{4,40}/i, /Imã\s+de\s+[\w\s]{4,30}/i, /Batedeira\s+[\w\s]{4,40}/i,
+      /Batedor\s+[\w\s]{4,40}/i, /Moedor\s+[\w\s]{4,30}/i, /Espumador\s+[\w\s]{4,40}/i,
+      /Armário\s+[\w\s]{4,30}/i, /Kit\s+[\w\s]{4,40}/i, /Pincel\s+[\w\s]{4,30}/i,
+      /Bolsa\s+[\w\s]{4,40}/i, /Mochila\s+[\w\s]{4,30}/i, /Caixa\s+[\w\s]{4,40}/i,
+      /Fone\s+[\w\s]{4,30}/i, /Relógio\s+[\w\s]{4,30}/i, /Suporte\s+[\w\s]{4,30}/i,
+      /Luminária\s+[\w\s]{4,30}/i, /Projetor\s+[\w\s]{4,30}/i, /Câmera\s+[\w\s]{4,30}/i,
+      /Ventilador\s+[\w\s]{4,30}/i, /Tomada\s+[\w\s]{4,30}/i, /Hub\s+USB[\w\s]{0,20}/i,
+      /Tapete\s+[\w\s]{4,30}/i, /Lixeira\s+[\w\s]{4,30}/i, /Dupla\s+Haste[\w\s]{4,30}/i,
+      /Caixa\s+de\s+Som[\w\s]{0,20}/i, /Alto[\-\s]?falante[\w\s]{4,30}/i,
     ];
-    const allMatches = [];
-    for (const p of patterns) { const m = text.match(new RegExp(p.source, 'gi')); if (m) allMatches.push(...m); }
-    return allMatches[idx] ? allMatches[idx].trim().slice(0, 60) : `Produto #${idx + 1}`;
+    const all = [];
+    for (const p of patterns) { const m = text.match(new RegExp(p.source,'gi')); if(m) all.push(...m); }
+    return all[idx] ? all[idx].trim().slice(0,60) : `Produto #${idx+1}`;
   }
 
   // ─── ANALYSIS ───
-  async function analyzeProducts(products) {
-    setProgressTitle('Consultando Amazon via Keepa...');
+  async function analyzeAll(products) {
     allProducts = [];
-    const BATCH = 1; // 1 token/min Keepa limit
+    setProgressTitle('Buscando produtos na Amazon...');
+    const BATCH = 3;
     for (let i = 0; i < products.length; i += BATCH) {
-      const batch = products.slice(i, i + BATCH);
+      const batch = products.slice(i, i+BATCH);
       await Promise.all(batch.map(p => analyzeProduct(p)));
-      updateProgress(Math.min(i + BATCH, products.length), products.length, `${Math.min(i + BATCH, products.length)} de ${products.length} analisados...`);
-      if (i + BATCH < products.length) await sleep(62000); // 1 token/min Keepa limit
+      updateProgress(Math.min(i+BATCH, products.length), products.length, `${Math.min(i+BATCH, products.length)} de ${products.length} analisados...`);
+      if (i+BATCH < products.length) await sleep(1000);
     }
     showResults();
   }
@@ -589,316 +460,206 @@
     try {
       addFeedItem('🔍', product.model, product.name || 'identificando...');
 
-      // Step 1: AI identifies product & generates search terms
+      // Step 1: AI identifies product
       const ai = await identifyWithAI(product);
 
-      // Step 2: Search Keepa for multiple ASINs
-      const candidates = await searchKeepaASINs(ai.searchTerm, ai.searchTermAlt);
+      // Step 2: Find Amazon.com.br product via search engines
+      const amazonData = await findOnAmazon(ai.searchTerm, ai.searchTermAlt);
 
-      // Step 3: If candidates found, fetch detailed data for each
-      let finalData = { demandLevel: 'unknown', candidates: [] };
-      if (candidates.length > 0) {
-        const detailed = await fetchKeepaDetails(candidates.slice(0, 5));
-        finalData = processKeepaResults(detailed);
-      }
+      // Step 3: Determine if approved
+      const approved = amazonData.rating >= filterStars && amazonData.salesEstimate >= filterSales;
+      const status = amazonData.asin ? (approved ? 'approved' : 'rejected') : 'nodata';
 
-      const p = { ...product, ...ai, ...finalData };
+      const p = { ...product, ...ai, ...amazonData, status };
       allProducts.push(p);
 
-      const emoji = p.demandLevel === 'high' ? '🟢' : p.demandLevel === 'mid' ? '🟡' : p.demandLevel === 'low' ? '🔴' : '⚪';
-      const topSeller = p.candidates?.[0];
-      addFeedItem(emoji, product.model, topSeller
-        ? `BSR #${(topSeller.bsr||0).toLocaleString('pt-BR')} · ${topSeller.sellerCount || '?'} vendedores · ~${topSeller.salesEstimate || '?'} vendas/mês`
-        : 'Não encontrado na Amazon.com.br');
-
-    } catch (err) {
-      allProducts.push({ ...product, demandLevel: 'unknown', candidates: [], error: err.message });
-      addFeedItem('⚠️', product.model, 'Erro: ' + err.message);
+      const emoji = status === 'approved' ? '✅' : status === 'rejected' ? '❌' : '⚪';
+      addFeedItem(emoji, product.model,
+        amazonData.asin
+          ? `⭐${amazonData.rating||'?'} · ~${amazonData.salesEstimate||'?'} vendas/mês · BSR #${(amazonData.bsr||0).toLocaleString('pt-BR')}`
+          : 'Não encontrado na Amazon.com.br'
+      );
+    } catch(e) {
+      allProducts.push({ ...product, status:'nodata', error: e.message });
+      addFeedItem('⚠️', product.model, 'Erro: ' + e.message);
     }
   }
 
   async function identifyWithAI(product) {
     const resp = await fetch(ANTHROPIC_API, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 400,
-        messages: [{
-          role: 'user',
-          content: [
-            { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: product.imgData } },
-            { type: 'text', text: `Produto do catálogo: modelo ${product.model}, nome "${product.name}".
-Retorne SOMENTE JSON válido:
-{
-  "searchTerm": "termo de busca em inglês para Amazon (5-7 palavras genéricas, sem marca, descreve o produto especificamente)",
-  "searchTermAlt": "termo alternativo em inglês (abordagem diferente)",
-  "category": "categoria em português",
-  "productType": "tipo do produto em português (nome curto)"
-}` }
-          ]
-        }]
+        max_tokens: 300,
+        messages: [{ role:'user', content: [
+          { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } },
+          { type:'text', text: `Produto do catálogo: modelo ${product.model}, nome "${product.name}". Retorne SOMENTE JSON:
+{"searchTerm":"termo em português para buscar na Amazon Brasil (4-6 palavras genéricas)","searchTermAlt":"termo alternativo em português","productType":"tipo do produto"}` }
+        ]}]
       })
     });
     const data = await resp.json();
-    try {
-      const text = data.content?.[0]?.text || '{}';
-      return JSON.parse(text.replace(/```json|```/g, '').trim());
-    } catch {
-      return { searchTerm: product.name || product.model, searchTermAlt: '', category: 'Geral', productType: product.name };
-    }
+    try { return JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); }
+    catch { return { searchTerm: product.name || product.model, searchTermAlt: '', productType: product.name }; }
   }
 
-  async function searchKeepaASINs(term1, term2) {
+  async function findOnAmazon(term1, term2) {
     const asins = new Set();
-    const results = [];
-
-    async function searchGoogle(term) {
-      try {
-        // Search Google for Amazon.com.br results and extract ASINs from URLs
-        const query = encodeURIComponent(`site:amazon.com.br ${term}`);
-        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.google.com/search?q=${query}&num=10&hl=pt-BR`)}`;
-        const resp = await fetch(url);
-        if (!resp.ok) return;
-        const data = await resp.json();
-        const html = data.contents || '';
-
-        // Extract ASINs from Amazon URLs in Google results
-        const asinPattern = /amazon\.com\.br[^"]*\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
-        let match;
-        while ((match = asinPattern.exec(html)) !== null) {
-          if (!asins.has(match[1])) {
-            asins.add(match[1]);
-            results.push(match[1]);
-          }
-        }
-      } catch {}
-    }
-
-    async function searchDuckDuckGo(term) {
-      try {
-        const query = encodeURIComponent(`site:amazon.com.br ${term}`);
-        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://html.duckduckgo.com/html/?q=${query}`)}`;
-        const resp = await fetch(url);
-        if (!resp.ok) return;
-        const data = await resp.json();
-        const html = data.contents || '';
-
-        const asinPattern = /amazon\.com\.br[^"]*\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
-        let match;
-        while ((match = asinPattern.exec(html)) !== null) {
-          if (!asins.has(match[1])) {
-            asins.add(match[1]);
-            results.push(match[1]);
-          }
-        }
-      } catch {}
-    }
-
-    // Try Google first, fallback to DuckDuckGo
-    await searchGoogle(term1);
-    if (results.length < 2) await searchDuckDuckGo(term1);
-    if (term2 && results.length < 2) {
-      await searchGoogle(term2);
-      if (results.length < 2) await searchDuckDuckGo(term2);
-    }
-
-    return results.slice(0, 5);
-  }
-
-  async function fetchKeepaDetails(asins) {
-    try {
-      const url = `https://api.keepa.com/product?key=${KEEPA_KEY}&domain=11&asin=${asins.join(',')}&stats=90&offers=20`;
-      const resp = await fetch(url);
-      if (!resp.ok) return [];
-      const data = await resp.json();
-      return data.products || [];
-    } catch { return []; }
-  }
-
-  function processKeepaResults(products) {
     const candidates = [];
 
-    for (const prod of products) {
-      if (!prod) continue;
-
-      // BSR
-      let bsr = null;
-      const ranks = prod.salesRanks;
-      if (ranks) {
-        const keys = Object.keys(ranks);
-        if (keys.length > 0) {
-          const latest = ranks[keys[0]];
-          if (latest && latest.length >= 2) bsr = latest[latest.length - 1];
-        }
+    function extractASINs(html) {
+      const found = [];
+      const pat = /\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
+      let m;
+      while ((m = pat.exec(html)) !== null) {
+        if (!asins.has(m[1])) { asins.add(m[1]); found.push(m[1]); }
       }
-
-      // Current prices
-      let amazonPrice = null, newPrice = null;
-      const csv = prod.csv;
-      if (csv) {
-        if (csv[0] && csv[0].length >= 2) { const v = csv[0][csv[0].length - 1]; if (v > 0) amazonPrice = (v / 100).toFixed(2); }
-        if (csv[1] && csv[1].length >= 2) { const v = csv[1][csv[1].length - 1]; if (v > 0) newPrice = (v / 100).toFixed(2); }
-      }
-
-      // Reviews & rating
-      let reviewCount = null, rating = null;
-      if (csv && csv[2] && csv[2].length >= 2) reviewCount = csv[2][csv[2].length - 1];
-      if (csv && csv[3] && csv[3].length >= 2) rating = (csv[3][csv[3].length - 1] / 10).toFixed(1);
-
-      // Seller count from offers
-      const offers = prod.offers || [];
-      const activeOffers = offers.filter(o => o.isFBA || o.isPrime || o.isShippable);
-      const sellerCount = activeOffers.length || prod.offerCount || null;
-
-      // Buy box winner
-      let buyBoxSeller = null;
-      const buyBoxOffers = offers.filter(o => o.isBuyBoxWinner);
-      if (buyBoxOffers.length > 0) buyBoxSeller = buyBoxOffers[0].sellerId || 'Amazon';
-
-      // Sales estimate from BSR
-      const salesEstimate = estimateSales(bsr);
-      const demandLevel = bsr ? (bsr < 10000 ? 'high' : bsr < 80000 ? 'mid' : 'low') : 'unknown';
-
-      // Category
-      const categoryName = prod.categoryTree?.[prod.categoryTree.length - 1]?.name || prod.rootCategory || null;
-
-      candidates.push({
-        asin: prod.asin,
-        title: prod.title,
-        bsr,
-        amazonPrice,
-        newPrice,
-        reviewCount,
-        rating,
-        sellerCount,
-        buyBoxSeller,
-        salesEstimate,
-        demandLevel,
-        categoryName,
-        amazonUrl: `https://www.amazon.com.br/dp/${prod.asin}`,
-        imgUrl: prod.imagesCSV ? `https://images-na.ssl-images-amazon.com/images/I/${prod.imagesCSV.split(',')[0]}` : null,
-      });
+      return found;
     }
 
-    candidates.sort((a, b) => {
-      const order = { high: 0, mid: 1, low: 2, unknown: 3 };
-      return (order[a.demandLevel] || 3) - (order[b.demandLevel] || 3);
-    });
+    async function searchEngine(term, engine) {
+      try {
+        let searchUrl;
+        if (engine === 'google') searchUrl = `https://www.google.com/search?q=${encodeURIComponent('site:amazon.com.br '+term)}&num=10&hl=pt-BR&gl=BR`;
+        else if (engine === 'bing') searchUrl = `https://www.bing.com/search?q=${encodeURIComponent('site:amazon.com.br '+term)}&count=10`;
+        else searchUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent('site:amazon.com.br '+term)}`;
 
-    const best = candidates[0] || {};
-    return {
-      demandLevel: best.demandLevel || 'unknown',
-      candidates,
-    };
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(searchUrl)}`;
+        const resp = await fetch(url);
+        if (!resp.ok) return [];
+        const data = await resp.json();
+        return extractASINs(data.contents || '');
+      } catch { return []; }
+    }
+
+    // Search all engines in parallel
+    const results1 = await Promise.all([
+      searchEngine(term1, 'google'),
+      searchEngine(term1, 'bing'),
+      searchEngine(term1, 'ddg')
+    ]);
+    for (const r of results1.flat()) if (!candidates.includes(r)) candidates.push(r);
+
+    if (candidates.length < 2 && term2) {
+      const results2 = await Promise.all([
+        searchEngine(term2, 'google'),
+        searchEngine(term2, 'bing'),
+        searchEngine(term2, 'ddg')
+      ]);
+      for (const r of results2.flat()) if (!candidates.includes(r)) candidates.push(r);
+    }
+
+    if (!candidates.length) return { asin: null, rating: null, bsr: null, salesEstimate: null, reviewCount: null, amazonUrl: null };
+
+    // Fetch Amazon product page for the best candidate
+    return await fetchAmazonProduct(candidates[0]);
+  }
+
+  async function fetchAmazonProduct(asin) {
+    try {
+      const amazonUrl = `https://www.amazon.com.br/dp/${asin}`;
+      const url = `https://api.allorigins.win/get?url=${encodeURIComponent(amazonUrl)}`;
+      const resp = await fetch(url);
+      if (!resp.ok) return { asin, amazonUrl, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
+      const data = await resp.json();
+      const html = data.contents || '';
+
+      // Extract rating
+      let rating = null;
+      const ratingMatch = html.match(/(\d[.,]\d)\s*(?:de\s*5\s*)?estrelas?/i) ||
+                          html.match(/"ratingScore"[^>]*>(\d[.,]\d)/i) ||
+                          html.match(/averageStarRating[^>]*>(\d[.,]\d)/i);
+      if (ratingMatch) rating = parseFloat(ratingMatch[1].replace(',','.'));
+
+      // Extract review count
+      let reviewCount = null;
+      const reviewMatch = html.match(/([\d.,]+)\s*(?:avaliações|classificações|ratings)/i) ||
+                          html.match(/\(?([\d.,]+)\)?<\/span>\s*<\/a>\s*<\/span>/i);
+      if (reviewMatch) reviewCount = parseInt(reviewMatch[1].replace(/[.,]/g,''));
+
+      // Extract BSR
+      let bsr = null;
+      const bsrMatch = html.match(/#([\d.,]+)\s*(?:em|in)\s*(?:Produtos|[A-Z])/i) ||
+                       html.match(/Best Sellers Rank.*?#([\d.,]+)/i) ||
+                       html.match(/bestsellersrank.*?(\d[\d.,]*)/i);
+      if (bsrMatch) bsr = parseInt(bsrMatch[1].replace(/[.,]/g,''));
+
+      // Estimate sales from BSR
+      const salesEstimate = estimateSales(bsr);
+
+      return { asin, amazonUrl, rating, reviewCount, bsr, salesEstimate };
+    } catch {
+      return { asin, amazonUrl: `https://www.amazon.com.br/dp/${asin}`, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
+    }
   }
 
   function estimateSales(bsr) {
     if (!bsr) return null;
-    if (bsr < 500) return '> 5.000';
-    if (bsr < 2000) return '1.000 – 5.000';
-    if (bsr < 10000) return '300 – 1.000';
-    if (bsr < 50000) return '50 – 300';
-    if (bsr < 200000) return '10 – 50';
+    if (bsr < 500) return 5000;
+    if (bsr < 2000) return 2000;
+    if (bsr < 10000) return 600;
+    if (bsr < 50000) return 150;
+    if (bsr < 200000) return 30;
+    return 5;
+  }
+
+  function estimateSalesLabel(n) {
+    if (!n) return '—';
+    if (n >= 5000) return '> 5.000';
+    if (n >= 2000) return '1.000 – 5.000';
+    if (n >= 600) return '300 – 1.000';
+    if (n >= 150) return '50 – 300';
+    if (n >= 30) return '10 – 50';
     return '< 10';
   }
 
   // ─── UI ───
   function showProgress() {
-    document.getElementById('uploadSection').style.display = 'none';
+    hide('uploadSection'); hide('pageRangeSection'); hide('resultsSection');
     document.getElementById('progressSection').classList.add('visible');
-    document.getElementById('resultsSection').classList.remove('visible');
   }
 
   function showResults() {
     document.getElementById('progressSection').classList.remove('visible');
     document.getElementById('resultsSection').classList.add('visible');
 
-    allProducts.sort((a, b) => {
-      const o = { high: 0, mid: 1, low: 2, unknown: 3 };
-      return (o[a.demandLevel] || 3) - (o[b.demandLevel] || 3);
+    allProducts.sort((a,b) => {
+      if (a.status==='approved' && b.status!=='approved') return -1;
+      if (b.status==='approved' && a.status!=='approved') return 1;
+      return (b.rating||0) - (a.rating||0);
     });
 
     const total = allProducts.length;
-    const high = allProducts.filter(p => p.demandLevel === 'high').length;
-    const mid = allProducts.filter(p => p.demandLevel === 'mid').length;
-    const low = allProducts.filter(p => ['low', 'unknown'].includes(p.demandLevel)).length;
+    const approved = allProducts.filter(p=>p.status==='approved').length;
+    const rejected = allProducts.filter(p=>p.status==='rejected').length;
+    const nodata = allProducts.filter(p=>p.status==='nodata').length;
 
     document.getElementById('statTotal').textContent = total;
-    document.getElementById('statHigh').textContent = high;
-    document.getElementById('statMid').textContent = mid;
-    document.getElementById('statLow').textContent = low;
-    document.getElementById('resultsSubtitle').textContent = `${total} produtos analisados`;
+    document.getElementById('statApproved').textContent = approved;
+    document.getElementById('statRejected').textContent = rejected;
+    document.getElementById('statNodata').textContent = nodata;
+    document.getElementById('resultsSubtitle').textContent = `${total} produtos analisados · ${approved} aprovados com ⭐≥${filterStars} e ≥${filterSales} vendas/mês`;
 
-    renderProducts(allProducts);
+    renderCards(allProducts);
   }
 
-  function renderProducts(products) {
+  function renderCards(products) {
     const grid = document.getElementById('productsGrid');
     grid.innerHTML = '';
-    if (!products.length) {
-      grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">🔍 Nenhum produto nesta categoria.</div>`;
-      return;
-    }
+    if (!products.length) { grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`; return; }
     for (const p of products) grid.appendChild(createCard(p));
   }
 
   function createCard(p) {
     const div = document.createElement('div');
-    div.className = `product-card ${p.demandLevel}-demand`;
+    div.className = `product-card ${p.status}`;
+    div.dataset.status = p.status;
 
-    const badge = { high: '🟢 Alta Demanda', mid: '🟡 Média Demanda', low: '🔴 Baixa Demanda', unknown: '⚪ Sem dados' };
-    const badgeClass = p.demandLevel || 'unknown';
-    const best = p.candidates?.[0];
-
-    const bsrClass = best?.bsr ? (best.bsr < 10000 ? 'good' : best.bsr < 80000 ? 'warn' : 'bad') : '';
-
-    // Build sellers HTML
-    let sellersHTML = '';
-    if (p.candidates && p.candidates.length > 0) {
-      const rows = p.candidates.map((c, i) => {
-        const bClass = c.bsr ? (c.bsr < 10000 ? 'good' : c.bsr < 80000 ? 'warn' : 'bad') : '';
-        const isBuyBox = c.buyBoxSeller;
-        return `
-          <div class="seller-row">
-            <div class="seller-rank">#${i+1}</div>
-            <div class="seller-info">
-              <div class="seller-name" title="${c.title || ''}">${(c.title || 'Produto').slice(0, 50)}${(c.title||'').length > 50 ? '…' : ''}</div>
-              <div class="seller-asin">ASIN: <a href="${c.amazonUrl}" target="_blank" style="color:var(--yellow);text-decoration:none">${c.asin}</a> · ${c.categoryName || ''}</div>
-            </div>
-            <div class="seller-metrics">
-              <div class="seller-metric">
-                <div class="sm-label">BSR</div>
-                <div class="sm-val ${bClass}">${c.bsr ? '#' + c.bsr.toLocaleString('pt-BR') : '—'}</div>
-              </div>
-              <div class="seller-metric">
-                <div class="sm-label">Vendas/mês</div>
-                <div class="sm-val ${bClass}">${c.salesEstimate || '—'}</div>
-              </div>
-              <div class="seller-metric">
-                <div class="sm-label">Vendedores</div>
-                <div class="sm-val">${c.sellerCount || '—'}</div>
-              </div>
-              <div class="seller-metric">
-                <div class="sm-label">Preço</div>
-                <div class="sm-val">R$ ${c.newPrice || c.amazonPrice || '—'}</div>
-              </div>
-            </div>
-            ${isBuyBox ? `<div class="buybox-badge">Buy Box</div>` : ''}
-          </div>`;
-      }).join('');
-
-      sellersHTML = `
-        <div class="sellers-section">
-          <div class="sellers-header" onclick="toggleSellers(this)">
-            <span>📊 ${p.candidates.length} anúncio${p.candidates.length !== 1 ? 's' : ''} encontrado${p.candidates.length !== 1 ? 's' : ''} na Amazon</span>
-            <span class="sellers-toggle">▼ ver todos</span>
-          </div>
-          <div class="sellers-list">${rows}</div>
-        </div>`;
-    } else {
-      sellersHTML = `<div class="sellers-section"><div class="sellers-header"><span>⚪ Nenhum anúncio encontrado na Amazon.com.br</span></div></div>`;
-    }
+    const badgeText = p.status==='approved' ? '✓ Aprovado' : p.status==='rejected' ? '✗ Reprovado' : '⚪ Sem dados';
+    const ratingClass = p.rating ? (p.rating>=4?'good':p.rating>=3?'warn':'bad') : '';
+    const salesClass = p.salesEstimate ? (p.salesEstimate>=filterSales?'good':'bad') : '';
+    const bsrClass = p.bsr ? (p.bsr<10000?'good':p.bsr<100000?'warn':'bad') : '';
 
     div.innerHTML = `
       <div class="card-top">
@@ -906,52 +667,46 @@ Retorne SOMENTE JSON válido:
         <div class="product-info">
           <div class="product-model">${p.model} · Pág. ${p.pageNum}</div>
           <div class="product-name">${p.name || p.productType || 'Produto'}</div>
-          <div class="demand-badge ${badgeClass}">${badge[badgeClass]}</div>
+          <span class="status-badge ${p.status}">${badgeText}</span>
         </div>
       </div>
       <div class="card-metrics">
         <div class="metric">
-          <div class="m-label">Melhor BSR</div>
-          <div class="m-value ${bsrClass}">${best?.bsr ? '#' + best.bsr.toLocaleString('pt-BR') : '—'}</div>
+          <div class="m-label">Avaliação</div>
+          <div class="m-value ${ratingClass}">${p.rating ? p.rating+'⭐' : '—'}</div>
         </div>
         <div class="metric">
           <div class="m-label">Vendas/mês (est.)</div>
-          <div class="m-value ${bsrClass}">${best?.salesEstimate || '—'}</div>
+          <div class="m-value ${salesClass}">${estimateSalesLabel(p.salesEstimate)}</div>
         </div>
         <div class="metric">
-          <div class="m-label">Avaliações</div>
-          <div class="m-value">${best?.reviewCount ? best.reviewCount.toLocaleString('pt-BR') : '—'}</div>
+          <div class="m-label">BSR Amazon</div>
+          <div class="m-value ${bsrClass}">${p.bsr ? '#'+p.bsr.toLocaleString('pt-BR') : '—'}</div>
         </div>
       </div>
-      ${sellersHTML}
       <div class="card-footer">
-        <span style="font-size:11px;color:var(--text-dim)">Busca: "${p.searchTerm || ''}"</span>
-        ${best ? `<a href="${best.amazonUrl}" target="_blank" class="card-link">Ver na Amazon ↗</a>` : ''}
-      </div>
-    `;
+        <span style="font-size:11px;color:var(--text-dim)">Busca: "${p.searchTerm||''}"</span>
+        ${p.amazonUrl ? `<a href="${p.amazonUrl}" target="_blank" class="card-link">Ver na Amazon ↗</a>` : ''}
+      </div>`;
     return div;
   }
 
-  function toggleSellers(header) {
-    const list = header.nextElementSibling;
-    const toggle = header.querySelector('.sellers-toggle');
-    const isOpen = list.classList.toggle('open');
-    toggle.textContent = isOpen ? '▲ recolher' : '▼ ver todos';
+  function filterCards(status, btn) {
+    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = status==='all' ? allProducts : allProducts.filter(p=>p.status===status);
+    renderCards(filtered);
   }
 
-  function filterProducts(level, btn) {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    const filtered = level === 'all' ? allProducts : allProducts.filter(p =>
-      level === 'unknown' ? ['unknown'].includes(p.demandLevel) : p.demandLevel === level
-    );
-    renderProducts(filtered);
+  function hide(id) {
+    const el = document.getElementById(id);
+    if (el) { el.style.display='none'; el.classList?.remove('visible'); }
   }
 
   function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
   function updateProgress(cur, tot, status) {
-    const pct = tot > 0 ? Math.round((cur / tot) * 100) : 0;
-    document.getElementById('progressBar').style.width = pct + '%';
+    const pct = tot>0 ? Math.round((cur/tot)*100) : 0;
+    document.getElementById('progressBar').style.width = pct+'%';
     document.getElementById('progressCount').textContent = `${cur} / ${tot}`;
     document.getElementById('progressStatus').textContent = status;
   }
@@ -964,35 +719,33 @@ Retorne SOMENTE JSON válido:
     feed.scrollTop = feed.scrollHeight;
   }
 
-  function exportCSV() {
-    const rows = [['Modelo', 'Nome', 'Categoria', 'Demanda', 'ASIN', 'Título Amazon', 'BSR', 'Vendas/mês', 'Preço', 'Vendedores', 'Avaliações', 'Link']];
-    for (const p of allProducts) {
-      const c = p.candidates?.[0] || {};
-      rows.push([p.model, p.name || '', p.category || '', p.demandLevel, c.asin || '', c.title || '', c.bsr || '', c.salesEstimate || '', c.newPrice || c.amazonPrice || '', c.sellerCount || '', c.reviewCount || '', c.amazonUrl || '']);
-    }
-    const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' }));
-    a.download = 'catalogo-analise-amazon.csv';
-    a.click();
-  }
-
   function showError(msg) {
     document.getElementById('progressSection').innerHTML = `
-      <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:20px;display:flex;align-items:center;gap:12px;font-size:14px;color:var(--text-dim)">⚠️ ${msg}</div>
+      <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:20px;font-size:14px;color:var(--text-dim)">⚠️ ${msg}</div>
       <button class="btn btn-ghost" onclick="resetApp()">↩ Tentar novamente</button>`;
   }
 
   function resetApp() {
-    allProducts = [];
+    allProducts = []; pdfFile = null; totalPdfPages = 0;
+    hide('progressSection'); hide('pageRangeSection'); hide('resultsSection');
     document.getElementById('uploadSection').style.display = 'flex';
-    document.getElementById('progressSection').classList.remove('visible');
-    document.getElementById('resultsSection').classList.remove('visible');
     document.getElementById('fileInput').value = '';
-    location.reload();
+    document.getElementById('liveFeed').innerHTML = '';
   }
 
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  function exportCSV() {
+    const rows = [['Modelo','Nome','Status','Avaliação','Vendas/mês (est.)','BSR','ASIN','Link Amazon','Busca usada','Página']];
+    for (const p of allProducts) {
+      rows.push([p.model, p.name||'', p.status, p.rating||'', estimateSalesLabel(p.salesEstimate), p.bsr||'', p.asin||'', p.amazonUrl||'', p.searchTerm||'', p.pageNum]);
+    }
+    const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+    a.download = 'minerador-amazon.csv';
+    a.click();
+  }
+
+  function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 </script>
 </body>
 </html>
