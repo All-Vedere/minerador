@@ -231,6 +231,36 @@
     <button class="btn btn-yellow" onclick="document.getElementById('fileInput').click()">➕ Selecionar PDF</button>
   </div>
 
+  <!-- PAGE RANGE SELECTOR -->
+  <div id="pageRangeSection" style="display:none;max-width:560px;margin:0 auto;padding:32px 24px;">
+    <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:20px;padding:32px;">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;">
+        <div style="width:44px;height:44px;background:var(--yellow);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;">📄</div>
+        <div>
+          <h2 style="font-size:18px;font-weight:700;" id="pageRangeTitle">Selecionar páginas</h2>
+          <p style="font-size:13px;color:var(--text-dim);" id="pageRangeSubtitle"></p>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-dim);display:block;margin-bottom:8px;">Página inicial</label>
+          <input id="pageStart" type="number" min="1" value="3" style="width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;text-align:center;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-dim);display:block;margin-bottom:8px;">Página final</label>
+          <input id="pageEnd" type="number" min="1" value="50" style="width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:16px;outline:none;text-align:center;">
+        </div>
+      </div>
+      <div style="background:var(--gray2);border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:13px;color:var(--text-dim);">
+        💡 Dica: comece com intervalos de <strong style="color:var(--text);">50 páginas</strong> para respeitar o limite de tokens do Keepa. Você pode rodar múltiplas sessões ao longo do dia.
+      </div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-ghost" style="flex:1" onclick="resetApp()">↩ Voltar</button>
+        <button class="btn btn-yellow" style="flex:2" onclick="startAnalysis()">▶ Iniciar análise</button>
+      </div>
+    </div>
+  </div>
+
   <!-- PROGRESS -->
   <div class="progress-section" id="progressSection">
     <div class="progress-card">
@@ -365,14 +395,57 @@
   document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
 
   // ─── MAIN FLOW ───
+  let allExtractedProducts = [];
+  let totalPdfPages = 0;
+
   async function processFile(file) {
     showProgress();
     setProgressTitle('Lendo o PDF...');
     addFeedItem('📄', 'Arquivo', file.name);
     try {
-      const products = await extractProductsFromPDF(file);
-      if (!products.length) { showError('Nenhum produto encontrado no PDF.'); return; }
-      addFeedItem('✅', 'Encontrados', `${products.length} produtos no catálogo`);
+      // First just get page count quickly
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      totalPdfPages = pdf.numPages;
+      addFeedItem('📋', 'Catálogo', `${totalPdfPages} páginas encontradas`);
+
+      // Store file reference and show page selector
+      window._pdfFile = file;
+      showPageRangeSelector(totalPdfPages);
+    } catch (err) {
+      console.error(err);
+      showError('Erro: ' + err.message);
+    }
+  }
+
+  function showPageRangeSelector(totalPages) {
+    document.getElementById('progressSection').classList.remove('visible');
+    document.getElementById('pageRangeSection').style.display = 'block';
+    document.getElementById('pageRangeTitle').textContent = 'Selecionar intervalo de páginas';
+    document.getElementById('pageRangeSubtitle').textContent = `Catálogo com ${totalPages} páginas no total`;
+    document.getElementById('pageStart').value = 3;
+    document.getElementById('pageEnd').value = Math.min(52, totalPages);
+    document.getElementById('pageEnd').max = totalPages;
+    document.getElementById('pageStart').max = totalPages;
+  }
+
+  async function startAnalysis() {
+    const start = parseInt(document.getElementById('pageStart').value);
+    const end = parseInt(document.getElementById('pageEnd').value);
+
+    if (!start || !end || start > end) { alert('Intervalo de páginas inválido.'); return; }
+    if (end > totalPdfPages) { alert(`O catálogo tem apenas ${totalPdfPages} páginas.`); return; }
+
+    document.getElementById('pageRangeSection').style.display = 'none';
+    showProgress();
+    setProgressTitle(`Extraindo produtos das páginas ${start} a ${end}...`);
+    addFeedItem('📄', 'Intervalo', `Páginas ${start} a ${end} (${end - start + 1} páginas)`);
+
+    try {
+      const products = await extractProductsFromPDFRange(window._pdfFile, start, end);
+      if (!products.length) { showError('Nenhum produto encontrado nesse intervalo de páginas.'); return; }
+      addFeedItem('✅', 'Encontrados', `${products.length} produtos nas páginas selecionadas`);
+      allExtractedProducts = products;
       await analyzeProducts(products);
     } catch (err) {
       console.error(err);
@@ -381,6 +454,25 @@
   }
 
   // ─── PDF EXTRACTION ───
+  async function extractProductsFromPDFRange(file, startPage, endPage) {
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    const products = [];
+    const total = endPage - startPage + 1;
+    const BATCH = 4;
+
+    for (let i = startPage; i <= endPage; i += BATCH) {
+      const batch = [];
+      for (let p = i; p < i + BATCH && p <= endPage; p++) batch.push(p);
+      const results = await Promise.all(batch.map(p => extractPageProducts(pdf, p)));
+      for (const r of results) products.push(...r);
+      updateProgress(Math.min(i + BATCH - startPage, total), total, `Página ${Math.min(i + BATCH - 1, endPage)} de ${endPage}...`);
+    }
+
+    const seen = new Set();
+    return products.filter(p => { if (seen.has(p.model)) return false; seen.add(p.model); return true; });
+  }
+
   async function extractProductsFromPDF(file) {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
@@ -433,7 +525,26 @@
         crop.width = colW; crop.height = rowH;
         crop.getContext('2d').drawImage(canvas, col * colW, row * rowH + 30, colW, rowH - 30, 0, 0, colW, rowH);
 
-        products.push({ model, name, price, qty, imgData: crop.toDataURL('image/jpeg', 0.75).split(',')[1], pageNum });
+        // Detect category from page header text
+        const catPatterns = [
+          'Novidades', 'Natal', 'Promoções', 'Voltou ao Estoque', 'Acampamentos',
+          'Papel de Parede', 'Cadeira Dobrável', 'Balanças', 'Papelaria', 'Carrinhos',
+          'Massageadores', 'Calculadora', 'Infláveis', 'Bandagens e Proteções',
+          'Ventilador', 'Área Pet', 'Relógios', 'Sapateiras/Roupas', 'Torneiras e Chuveiros',
+          'Suportes', 'Para Cozinha', 'Mop/Esfregão', 'Tomadas', 'Para Banheiro',
+          'Aspirador', 'Ring LED', 'Kit Organizador', 'Tapete', 'Luminárias',
+          'Porta Jóias', 'Itens domésticos', 'Difusor/Umidificador', 'Necessaires',
+          'Processadores', 'Lanternas', 'Para Marmitas', 'Formas', 'Câmeras',
+          'Bolsas e Mochilas', 'Lancheiras', 'Caixas de Som', 'Itens de Maquiagem',
+          'Potes Herméticos', 'Microfones', 'Espelho', 'Hub USB', 'Cabos',
+          'Lixeira', 'Informática', 'Talheres', 'Projetores', 'Guarda-Chuvas',
+          'Cadeira de Escritório', 'Jogo Americano'
+        ];
+        let detectedCategory = 'Geral';
+        for (const cat of catPatterns) {
+          if (text.includes(cat)) { detectedCategory = cat; break; }
+        }
+        products.push({ model, name, price, qty, imgData: crop.toDataURL('image/jpeg', 0.75).split(',')[1], pageNum, category: detectedCategory });
       }
       return products;
     } catch { return []; }
@@ -464,12 +575,12 @@
   async function analyzeProducts(products) {
     setProgressTitle('Consultando Amazon via Keepa...');
     allProducts = [];
-    const BATCH = 2;
+    const BATCH = 1; // 1 token/min Keepa limit
     for (let i = 0; i < products.length; i += BATCH) {
       const batch = products.slice(i, i + BATCH);
       await Promise.all(batch.map(p => analyzeProduct(p)));
       updateProgress(Math.min(i + BATCH, products.length), products.length, `${Math.min(i + BATCH, products.length)} de ${products.length} analisados...`);
-      if (i + BATCH < products.length) await sleep(600);
+      if (i + BATCH < products.length) await sleep(62000); // 1 token/min Keepa limit
     }
     showResults();
   }
@@ -542,21 +653,20 @@ Retorne SOMENTE JSON válido:
     const asins = new Set();
     const results = [];
 
-    // Use Amazon.com.br search to find ASINs, then query Keepa by ASIN
-    async function searchAmazon(term) {
+    async function searchGoogle(term) {
       try {
-        // Use DuckDuckGo to find Amazon.com.br ASINs for this product
+        // Search Google for Amazon.com.br results and extract ASINs from URLs
         const query = encodeURIComponent(`site:amazon.com.br ${term}`);
-        const url = `https://api.duckduckgo.com/?q=${query}&format=json&no_html=1&skip_disambig=1`;
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.google.com/search?q=${query}&num=10&hl=pt-BR`)}`;
         const resp = await fetch(url);
         if (!resp.ok) return;
         const data = await resp.json();
+        const html = data.contents || '';
 
-        // Extract ASINs from results URLs
-        const asinPattern = /amazon\.com\.br\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
-        const allText = JSON.stringify(data);
+        // Extract ASINs from Amazon URLs in Google results
+        const asinPattern = /amazon\.com\.br[^"]*\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
         let match;
-        while ((match = asinPattern.exec(allText)) !== null) {
+        while ((match = asinPattern.exec(html)) !== null) {
           if (!asins.has(match[1])) {
             asins.add(match[1]);
             results.push(match[1]);
@@ -565,32 +675,34 @@ Retorne SOMENTE JSON válido:
       } catch {}
     }
 
-    // Also try Keepa search endpoint (1 token per search)
-    async function searchKeepa(term) {
+    async function searchDuckDuckGo(term) {
       try {
-        const params = new URLSearchParams({
-          key: KEEPA_KEY,
-          domain: '11',
-          type: 'product',
-          term: term
-        });
-        const resp = await fetch(`https://api.keepa.com/search?${params.toString()}`);
+        const query = encodeURIComponent(`site:amazon.com.br ${term}`);
+        const url = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://html.duckduckgo.com/html/?q=${query}`)}`;
+        const resp = await fetch(url);
         if (!resp.ok) return;
         const data = await resp.json();
-        if (data.products) {
-          for (const p of data.products) {
-            if (p.asin && !asins.has(p.asin)) { asins.add(p.asin); results.push(p.asin); }
+        const html = data.contents || '';
+
+        const asinPattern = /amazon\.com\.br[^"]*\/(?:dp|gp\/product)\/([A-Z0-9]{10})/g;
+        let match;
+        while ((match = asinPattern.exec(html)) !== null) {
+          if (!asins.has(match[1])) {
+            asins.add(match[1]);
+            results.push(match[1]);
           }
         }
       } catch {}
     }
 
-    await searchAmazon(term1);
-    if (results.length < 3) await searchKeepa(term1);
-    if (term2 && results.length < 3) {
-      await searchAmazon(term2);
-      if (results.length < 3) await searchKeepa(term2);
+    // Try Google first, fallback to DuckDuckGo
+    await searchGoogle(term1);
+    if (results.length < 2) await searchDuckDuckGo(term1);
+    if (term2 && results.length < 2) {
+      await searchGoogle(term2);
+      if (results.length < 2) await searchDuckDuckGo(term2);
     }
+
     return results.slice(0, 5);
   }
 
