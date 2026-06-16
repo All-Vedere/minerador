@@ -467,7 +467,7 @@
       const ai = await identifyWithAI(product);
 
       // Step 2: Find Amazon.com.br product via search engines
-      const amazonData = await findOnAmazon(ai.searchTerm, ai.searchTermAlt);
+      const amazonData = await findOnAmazon(ai.searchTerm, ai.searchTermAlt, ai.searchTermEn);
 
       // Step 3: Determine if approved
       const approved = amazonData.rating >= filterStars && amazonData.salesEstimate >= filterSales;
@@ -489,45 +489,85 @@
   }
 
   async function identifyWithAI(product) {
+    // Extract text specs from the catalog page for better identification
+    const specsText = [product.name, product.specs].filter(Boolean).join(' | ');
+
     const resp = await fetch(ANTHROPIC_API, {
       method: 'POST',
       headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 300,
+        max_tokens: 500,
         messages: [{ role:'user', content: [
           { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } },
-          { type:'text', text: `Produto do catálogo: modelo ${product.model}, nome "${product.name}". Retorne SOMENTE JSON:
-{"searchTerm":"termo em português para buscar na Amazon Brasil (4-6 palavras genéricas)","searchTermAlt":"termo alternativo em português","productType":"tipo do produto"}` }
+          { type:'text', text: `Você é um especialista em identificar produtos para venda na Amazon Brasil.
+
+Analise CUIDADOSAMENTE esta imagem do catálogo do fornecedor.
+Informações do catálogo: modelo="${product.model}", nome="${specsText}", preço fornecedor="R$${product.price || '?'}"
+
+Sua tarefa é identificar o produto com MÁXIMA PRECISÃO para encontrar o mesmo produto na Amazon.com.br.
+
+Observe na imagem:
+- Tipo exato do produto (ex: não apenas "batedeira" mas "batedeira elétrica portátil recarregável USB")
+- Cor predominante
+- Formato e tamanho aparente
+- Material visível
+- Funcionalidades visíveis (botões, displays, acessórios inclusos)
+- Quantidade de peças se visível
+- Qualquer texto/marca visível na embalagem
+
+Retorne SOMENTE um JSON válido sem explicações:
+{
+  "searchTerm": "termo de busca ESPECÍFICO em português para Amazon Brasil (6-9 palavras, inclua características únicas vistas na imagem)",
+  "searchTermAlt": "termo alternativo com palavras-chave diferentes mas igualmente específico",
+  "searchTermEn": "mesmo termo específico em inglês para busca complementar",
+  "productType": "tipo do produto em português (nome curto)",
+  "keyFeatures": "3-4 características distintivas separadas por vírgula"
+}` }
         ]}]
       })
     });
     const data = await resp.json();
-    try { return JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim()); }
+    try {
+      const text = data.content?.[0]?.text || '{}';
+      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
+      return parsed;
+    }
     catch { return { searchTerm: product.name || product.model, searchTermAlt: '', productType: product.name }; }
   }
 
-  async function findOnAmazon(term1, term2) {
-    // Use our Vercel backend - no CORS issues
+  async function findOnAmazon(term1, term2, termEn) {
     const API = '/api/search';
+    const allAsins = [];
+    const seen = new Set();
 
     async function searchTerm(term) {
+      if (!term) return;
       try {
         const resp = await fetch(`${API}?term=${encodeURIComponent(term)}`, { signal: AbortSignal.timeout(12000) });
-        if (!resp.ok) return [];
+        if (!resp.ok) return;
         const data = await resp.json();
-        return data.asins || [];
-      } catch { return []; }
+        for (const a of (data.asins || [])) {
+          if (!seen.has(a)) { seen.add(a); allAsins.push(a); }
+        }
+      } catch {}
     }
 
-    let asins = await searchTerm(term1);
-    if (asins.length < 2 && term2) {
-      const asins2 = await searchTerm(term2);
-      for (const a of asins2) if (!asins.includes(a)) asins.push(a);
+    // Search with all terms in parallel for maximum coverage
+    await Promise.all([
+      searchTerm(term1),
+      searchTerm(term2),
+    ]);
+
+    // If still no results, try English term
+    if (allAsins.length === 0 && termEn) {
+      await searchTerm(termEn);
     }
 
-    if (!asins.length) return { asin: null, rating: null, bsr: null, salesEstimate: null, reviewCount: null, amazonUrl: null };
-    return await fetchAmazonProduct(asins[0]);
+    if (!allAsins.length) return { asin: null, rating: null, bsr: null, salesEstimate: null, reviewCount: null, amazonUrl: null };
+
+    // Fetch details for top candidate
+    return await fetchAmazonProduct(allAsins[0]);
   }
 
 
