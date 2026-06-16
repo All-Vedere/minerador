@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Minerador de Produtos · All Vedere Commerce</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
@@ -14,11 +13,12 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--black);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh}
+
   .header{background:var(--gray);border-bottom:1px solid var(--gray3);padding:14px 28px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
   .header-icon{width:36px;height:36px;background:var(--yellow);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
   .header h1{font-size:16px;font-weight:700}
   .header p{font-size:12px;color:var(--text-dim)}
-  .main{max-width:1200px;margin:0 auto;padding:32px 24px}
+  .main{max-width:900px;margin:0 auto;padding:32px 24px}
   .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
   .btn-yellow{background:var(--yellow);color:#000}.btn-yellow:hover{background:var(--yellow-dim)}
   .btn-ghost{background:var(--gray2);color:var(--text)}.btn-ghost:hover{background:var(--gray3)}
@@ -26,21 +26,19 @@
   /* LOGIN */
   #loginOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px}
   .login-box{background:var(--gray);border:1px solid var(--gray3);border-radius:24px;width:100%;max-width:420px;padding:40px 36px}
-  .login-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px}
-  .login-logo-icon{width:48px;height:48px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
   .field{margin-bottom:16px}
   .field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);display:block;margin-bottom:8px}
   .field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none}
   .field input:focus{border-color:var(--yellow)}
   #loginError{display:none;background:var(--red-dim);color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px}
 
-  /* UPLOAD STEPS */
-  .steps{display:none;flex-direction:column;gap:20px;max-width:600px;margin:0 auto}
+  /* STEPS */
+  .steps{display:none;flex-direction:column;gap:20px}
   .steps.visible{display:flex}
   .step-card{background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:24px}
   .step-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
   .step-num{width:28px;height:28px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0}
-  .step-num.done{background:var(--green)}
+  .step-num.done{background:var(--green);color:#fff}
   .step-header h3{font-size:15px;font-weight:600}
   .step-header p{font-size:13px;color:var(--text-dim)}
   .drop-zone{border:2px dashed var(--gray3);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
@@ -49,22 +47,26 @@
   .drop-zone p{font-size:14px;color:var(--text-dim)}
   .drop-zone input{display:none}
   .file-done{display:flex;align-items:center;gap:12px;background:var(--green-dim);border-radius:10px;padding:12px 16px}
-  .file-done .fd-icon{font-size:20px}
-  .file-done .fd-name{font-size:14px;font-weight:600;color:var(--green)}
-  .file-done .fd-sub{font-size:12px;color:var(--text-dim)}
+  .fd-name{font-size:14px;font-weight:600;color:var(--green)}
+  .fd-sub{font-size:12px;color:var(--text-dim)}
 
-  /* PAGE RANGE */
-  .page-range{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .pr-field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);display:block;margin-bottom:6px}
-  .pr-field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:10px;color:var(--text);font-size:18px;font-weight:700;outline:none;text-align:center}
-  .pr-field input:focus{border-color:var(--yellow)}
+  /* URL INPUT */
+  .url-row{display:flex;gap:10px;margin-bottom:12px}
+  .url-row input{flex:1;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none}
+  .url-row input:focus{border-color:var(--yellow)}
+
+  /* CATEGORIES */
+  .cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:280px;overflow-y:auto;margin-top:10px}
+  .cat-item{background:var(--gray2);border:2px solid var(--gray3);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500}
+  .cat-item:hover{border-color:var(--yellow)}
+  .cat-item.selected{border-color:var(--yellow);background:#1a1a0a}
 
   /* PROGRESS */
   .progress-section{display:none;flex-direction:column;gap:16px}
   .progress-section.visible{display:flex}
   .progress-card{background:var(--gray);border-radius:16px;padding:24px;border:1px solid var(--gray3)}
-  .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .progress-header h3{font-size:15px;font-weight:600}
+  .prog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .prog-header h3{font-size:15px;font-weight:600}
   .prog-count{font-size:13px;color:var(--text-dim);background:var(--gray2);padding:4px 10px;border-radius:20px}
   .prog-track{height:6px;background:var(--gray3);border-radius:3px;overflow:hidden}
   .prog-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .4s ease;width:0%}
@@ -76,7 +78,6 @@
   .lf-items{padding:6px 0;overflow-y:auto;max-height:210px}
   .fi{padding:9px 18px;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a;animation:slideIn .2s ease}
   @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-  .fi-icon{font-size:14px;flex-shrink:0}
   .fi-name{color:var(--text);font-weight:500}
   .fi-text{color:var(--text-dim)}
 
@@ -98,7 +99,7 @@
   .tabs{display:flex;gap:8px;flex-wrap:wrap}
   .tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--gray3);background:var(--gray2);color:var(--text-dim);transition:all .15s}
   .tab.active{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:600}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
 
   /* PRODUCT CARD */
   .pcard{background:var(--gray);border-radius:14px;border:1px solid var(--gray3);overflow:hidden;transition:transform .15s}
@@ -106,31 +107,26 @@
   .pcard.match{border-left:3px solid var(--green)}
   .pcard.similar{border-left:3px solid var(--mid)}
   .pcard.none{border-left:3px solid var(--red)}
-
-  .pcard-top{padding:14px;display:flex;gap:14px;align-items:flex-start}
+  .pcard-top{padding:14px;display:flex;gap:12px;align-items:flex-start}
   .pcard-imgs{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
   .cat-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
   .amz-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
   .pcard-info{flex:1;min-width:0}
-  .pcard-model{font-size:11px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+  .pcard-model{font-size:11px;color:var(--text-dim);font-weight:500;margin-bottom:4px}
   .pcard-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:6px}
   .match-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
   .match-badge.match{background:var(--green-dim);color:var(--green)}
   .match-badge.similar{background:var(--mid-dim);color:var(--mid)}
   .match-badge.none{background:var(--red-dim);color:var(--red)}
-
   .amz-title{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
   .pcard-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray3);border-top:1px solid var(--gray3)}
   .metric{background:var(--gray);padding:10px 12px}
   .metric .ml{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:3px}
   .metric .mv{font-size:14px;font-weight:700}
   .metric .mv.good{color:var(--green)}.metric .mv.warn{color:var(--mid)}.metric .mv.bad{color:var(--red)}
-
-  .pcard-footer{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gray3)}
-  .amz-link{font-size:12px;color:var(--yellow);text-decoration:none}
+  .pcard-footer{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gray3);font-size:12px}
+  .amz-link{color:var(--yellow);text-decoration:none}
   .amz-link:hover{text-decoration:underline}
-  .match-score{font-size:11px;color:var(--text-dim)}
 
   @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.main{padding:20px 16px}}
 </style>
@@ -140,8 +136,8 @@
 <!-- LOGIN -->
 <div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
   <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-icon">📦</div>
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:32px">
+      <div style="width:48px;height:48px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px">📦</div>
       <div><div style="font-size:18px;font-weight:700">Minerador de Produtos</div><div style="font-size:13px;color:var(--text-dim)">All Vedere Commerce</div></div>
     </div>
     <div class="field"><label>Usuário</label><input id="inputUser" type="text" placeholder="Digite seu usuário"></div>
@@ -182,41 +178,36 @@
     <div class="step-card">
       <div class="step-header">
         <div class="step-num" id="step2num">2</div>
-        <div><h3>Site do Fornecedor</h3><p>Cole a URL do site do fornecedor e selecione as categorias</p></div>
+        <div><h3>Site do Fornecedor</h3><p>Cole a URL do site e selecione as categorias que deseja analisar</p></div>
       </div>
-      <div id="urlInputBox">
-        <div style="display:flex;gap:10px;margin-bottom:12px;">
-          <input id="supplierUrl" type="url" placeholder="https://www.utimix.com" 
-            style="flex:1;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;"
-            onkeydown="if(event.key==='Enter')loadCategories()">
-          <button class="btn btn-yellow" onclick="loadCategories()" id="loadCatBtn">🔍 Buscar categorias</button>
-        </div>
-        <div id="catLoading" style="display:none;font-size:13px;color:var(--text-dim);padding:8px 0;">⏳ Buscando categorias...</div>
+      <div class="url-row">
+        <input id="supplierUrl" type="url" placeholder="https://www.utimix.com" onkeydown="if(event.key==='Enter')loadCategories()">
+        <button class="btn btn-yellow" onclick="loadCategories()" id="loadCatBtn">🔍 Buscar categorias</button>
       </div>
-      <div id="categoriesBox" style="display:none;">
-        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <div id="catLoading" style="display:none;font-size:13px;color:var(--text-dim);padding:8px 0">⏳ Buscando categorias do site...</div>
+      <div id="categoriesBox" style="display:none">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
           <span id="catCount"></span>
-          <div style="display:flex;gap:8px;">
-            <button onclick="selectAllCats(true)" style="font-size:12px;color:var(--yellow);background:none;border:none;cursor:pointer;">Selecionar todas</button>
-            <button onclick="selectAllCats(false)" style="font-size:12px;color:var(--text-dim);background:none;border:none;cursor:pointer;">Desmarcar todas</button>
+          <div style="display:flex;gap:12px">
+            <button onclick="selectAllCats(true)" style="font-size:12px;color:var(--yellow);background:none;border:none;cursor:pointer;font-weight:600">Selecionar todas</button>
+            <button onclick="selectAllCats(false)" style="font-size:12px;color:var(--text-dim);background:none;border:none;cursor:pointer">Desmarcar todas</button>
           </div>
         </div>
-        <div id="categoriesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:280px;overflow-y:auto;"></div>
+        <div class="cat-grid" id="catGrid"></div>
       </div>
-      <div id="step2Done" style="display:none"></div>
     </div>
 
-    <!-- Step 3: Start -->
+    <!-- Actions -->
     <div style="display:flex;gap:12px;justify-content:flex-end">
       <button class="btn btn-ghost" onclick="resetAll()">↩ Limpar</button>
       <button class="btn btn-yellow" id="startBtn" onclick="startCrossRef()" disabled style="opacity:.4">▶ Iniciar cruzamento</button>
     </div>
   </div>
 
-    <!-- PROGRESS -->
+  <!-- PROGRESS -->
   <div class="progress-section" id="progressSection">
     <div class="progress-card">
-      <div class="progress-header">
+      <div class="prog-header">
         <h3 id="progressTitle">Processando...</h3>
         <span class="prog-count" id="progressCount">0 / 0</span>
       </div>
@@ -239,7 +230,7 @@
       </div>
     </div>
     <div class="stats-row">
-      <div class="stat-card total"><div class="slabel">Total do Catálogo</div><div class="svalue" id="statTotal">0</div></div>
+      <div class="stat-card total"><div class="slabel">Total Analisado</div><div class="svalue" id="statTotal">0</div></div>
       <div class="stat-card match"><div class="slabel">✓ Correspondência</div><div class="svalue" id="statMatch">0</div></div>
       <div class="stat-card similar"><div class="slabel">~ Semelhante</div><div class="svalue" id="statSimilar">0</div></div>
       <div class="stat-card none"><div class="slabel">✗ Não encontrado</div><div class="svalue" id="statNone">0</div></div>
@@ -259,8 +250,6 @@
 </div>
 
 <script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
 const VALID_USER = 'Allvedere';
 const VALID_PASS = 'Lelisx@nd4';
 const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
@@ -269,14 +258,12 @@ const ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6
 let keepaProducts = [];
 let catalogProducts = [];
 let allResults = [];
-let pdfFile = null;
-let totalPdfPages = 0;
+let selectedCategories = [];
 
 // ─── LOGIN ───
 function checkLogin() {
   if (!sessionStorage.getItem('logged')) {
     document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('stepsSection').classList.remove('visible');
   } else {
     document.getElementById('stepsSection').classList.add('visible');
   }
@@ -295,261 +282,252 @@ function doLogin() {
 function doLogout() { sessionStorage.clear(); location.reload(); }
 checkLogin();
 
-// ─── DRAG & DROP ───
-  const uploadZone = document.getElementById('keepaDrop');
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) loadKeepa(f); });
-  document.getElementById('keepaFile').addEventListener('change', e => { if (e.target.files[0]) loadKeepa(e.target.files[0]); });
+// ─── KEEPA FILE UPLOAD ───
+const keepaDrop = document.getElementById('keepaDrop');
+keepaDrop.addEventListener('dragover', e => { e.preventDefault(); keepaDrop.classList.add('drag-over'); });
+keepaDrop.addEventListener('dragleave', () => keepaDrop.classList.remove('drag-over'));
+keepaDrop.addEventListener('drop', e => { e.preventDefault(); keepaDrop.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) loadKeepa(f); });
+document.getElementById('keepaFile').addEventListener('change', e => { if (e.target.files[0]) loadKeepa(e.target.files[0]); });
 
-  // ─── CATEGORIES ───
-  let selectedCategories = [];
+async function loadKeepa(file) {
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+    const headers = rows[0];
 
-  async function loadCategories() {
-    const urlInput = document.getElementById('supplierUrl').value.trim();
-    if (!urlInput) { alert('Cole a URL do site do fornecedor.'); return; }
-    
-    let supplierUrl = urlInput;
-    if (!supplierUrl.startsWith('http')) supplierUrl = 'https://' + supplierUrl;
-
-    document.getElementById('catLoading').style.display = 'block';
-    document.getElementById('categoriesBox').style.display = 'none';
-    document.getElementById('loadCatBtn').disabled = true;
-
-    try {
-      const resp = await fetch(`/api/scrape?action=categories&url=${encodeURIComponent(supplierUrl)}`);
-      const data = await resp.json();
-
-      if (!data.categories || data.categories.length === 0) {
-        alert('Não encontrei categorias neste site. Tente uma URL de categoria específica.');
-        return;
-      }
-
-      document.getElementById('catLoading').style.display = 'none';
-      document.getElementById('categoriesBox').style.display = 'block';
-      document.getElementById('catCount').textContent = `${data.categories.length} categorias encontradas`;
-
-      const grid = document.getElementById('categoriesGrid');
-      grid.innerHTML = '';
-      selectedCategories = [];
-
-      data.categories.forEach(cat => {
-        const item = document.createElement('div');
-        item.style.cssText = 'background:var(--gray2);border:2px solid var(--gray3);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;';
-        item.dataset.url = cat.url;
-        item.dataset.name = cat.name;
-        item.innerHTML = `<span style="font-size:16px">☐</span><span style="font-size:13px;font-weight:500">${cat.name}</span>`;
-        item.addEventListener('click', () => toggleCat(item, cat));
-        grid.appendChild(item);
-      });
-
-      checkReady();
-    } catch(e) {
-      alert('Erro ao acessar o site: ' + e.message);
-    } finally {
-      document.getElementById('loadCatBtn').disabled = false;
-      document.getElementById('catLoading').style.display = 'none';
-    }
-  }
-
-  function toggleCat(item, cat) {
-    const isSelected = item.style.borderColor === 'rgb(255, 215, 0)';
-    if (isSelected) {
-      item.style.borderColor = 'var(--gray3)';
-      item.style.background = 'var(--gray2)';
-      item.querySelector('span').textContent = '☐';
-      selectedCategories = selectedCategories.filter(c => c.url !== cat.url);
-    } else {
-      item.style.borderColor = '#FFD700';
-      item.style.background = '#1a1a0a';
-      item.querySelector('span').textContent = '☑';
-      selectedCategories.push(cat);
-    }
-    checkReady();
-  }
-
-  function selectAllCats(select) {
-    const items = document.querySelectorAll('#categoriesGrid > div');
-    selectedCategories = [];
-    items.forEach(item => {
-      const cat = { url: item.dataset.url, name: item.dataset.name };
-      if (select) {
-        item.style.borderColor = '#FFD700';
-        item.style.background = '#1a1a0a';
-        item.querySelector('span').textContent = '☑';
-        selectedCategories.push(cat);
-      } else {
-        item.style.borderColor = 'var(--gray3)';
-        item.style.background = 'var(--gray2)';
-        item.querySelector('span').textContent = '☐';
-      }
+    const idx = {};
+    headers.forEach((h, i) => {
+      if (h === 'ASIN') idx.asin = i;
+      else if (h === 'Título') idx.title = i;
+      else if (h === 'Imagem') idx.image = i;
+      else if (h === 'Tendências de vendas mensais: Comprado no último mês') idx.sales = i;
+      else if (h === 'Avaliações: Classificação') idx.rating = i;
+      else if (h === 'Avaliações: Contagem de avaliações') idx.reviews = i;
+      else if (h === 'Buy Box: Atual') idx.price = i;
+      else if (h === 'Classificação de vendas: Atual') idx.bsr = i;
+      else if (h === 'Classificação de vendas: Grupo de exibição') idx.category = i;
     });
+
+    keepaProducts = rows.slice(1).filter(r => r[idx.asin]).map(r => ({
+      asin: r[idx.asin],
+      title: r[idx.title] || '',
+      image: r[idx.image] ? r[idx.image].split(';')[0] : null,
+      sales: r[idx.sales] || null,
+      rating: r[idx.rating] || null,
+      reviews: r[idx.reviews] || null,
+      price: r[idx.price] || null,
+      bsr: r[idx.bsr] || null,
+      category: r[idx.category] || '',
+    }));
+
+    document.getElementById('keepaDrop').style.display = 'none';
+    document.getElementById('keepaDone').style.display = 'block';
+    document.getElementById('keepaDone').innerHTML = `
+      <div class="file-done">
+        <span style="font-size:20px">✅</span>
+        <div><div class="fd-name">${file.name}</div><div class="fd-sub">${keepaProducts.length} produtos carregados do Keepa</div></div>
+      </div>`;
+    document.getElementById('step1num').classList.add('done');
+    document.getElementById('step1num').textContent = '✓';
     checkReady();
+  } catch(e) {
+    alert('Erro ao ler planilha: ' + e.message);
   }
+}
 
-  // ─── START CROSS REF ───
-  async function startCrossRef() {
-    if (!selectedCategories.length) { alert('Selecione pelo menos uma categoria.'); return; }
-    if (!keepaProducts.length) { alert('Carregue a planilha do Keepa primeiro.'); return; }
+// ─── CATEGORIES ───
+async function loadCategories() {
+  let url = document.getElementById('supplierUrl').value.trim();
+  if (!url) { alert('Cole a URL do site do fornecedor.'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
 
-    document.getElementById('stepsSection').classList.remove('visible');
-    showProgress();
-    setProgressTitle('Coletando produtos do site do fornecedor...');
-    addFeed('🌐', 'Fornecedor', `${selectedCategories.length} categoria(s) selecionada(s)`);
-    addFeed('📊', 'Keepa', `${keepaProducts.length} produtos para cruzar`);
+  document.getElementById('catLoading').style.display = 'block';
+  document.getElementById('categoriesBox').style.display = 'none';
+  document.getElementById('loadCatBtn').disabled = true;
+  selectedCategories = [];
 
-    try {
-      catalogProducts = [];
-      for (let i = 0; i < selectedCategories.length; i++) {
-        const cat = selectedCategories[i];
-        addFeed('📂', cat.name, 'coletando produtos...');
-        const products = await scrapeCategory(cat);
-        catalogProducts.push(...products);
-        updateProgress(i + 1, selectedCategories.length, `${catalogProducts.length} produtos coletados...`);
-      }
+  try {
+    const resp = await fetch(`/api/scrape?action=categories&url=${encodeURIComponent(url)}`);
+    const data = await resp.json();
 
-      // Deduplicate
-      const seen = new Set();
-      catalogProducts = catalogProducts.filter(p => { if (seen.has(p.url)) return false; seen.add(p.url); return true; });
-
-      if (!catalogProducts.length) { showError('Nenhum produto encontrado.'); return; }
-      addFeed('✅', `${catalogProducts.length} produtos`, 'coletados — iniciando cruzamento');
-
-      await crossReference(catalogProducts);
-      showResults();
-    } catch(e) { showError('Erro: ' + e.message); }
-  }
-
-  async function scrapeCategory(cat) {
-    const products = [];
-    let page = 1;
-    let hasMore = true;
-    while (hasMore && page <= 10) {
-      try {
-        const resp = await fetch(`/api/scrape?action=products&url=${encodeURIComponent(cat.url)}&page=${page}`);
-        if (!resp.ok) break;
-        const data = await resp.json();
-        const tagged = (data.products || []).map(p => ({ ...p, category: cat.name }));
-        products.push(...tagged);
-        hasMore = data.hasNextPage && data.products?.length > 0;
-        page++;
-        if (hasMore) await sleep(400);
-      } catch { break; }
+    if (!data.categories?.length) {
+      alert('Não encontrei categorias neste site.');
+      return;
     }
-    return products;
+
+    document.getElementById('catCount').textContent = `${data.categories.length} categorias encontradas`;
+    document.getElementById('categoriesBox').style.display = 'block';
+
+    const grid = document.getElementById('catGrid');
+    grid.innerHTML = '';
+    data.categories.forEach(cat => {
+      const item = document.createElement('div');
+      item.className = 'cat-item';
+      item.dataset.url = cat.url;
+      item.dataset.name = cat.name;
+      item.innerHTML = `<span class="cat-check">☐</span><span>${cat.name}</span>`;
+      item.addEventListener('click', () => {
+        item.classList.toggle('selected');
+        item.querySelector('.cat-check').textContent = item.classList.contains('selected') ? '☑' : '☐';
+        selectedCategories = [...document.querySelectorAll('.cat-item.selected')].map(el => ({ url: el.dataset.url, name: el.dataset.name }));
+        checkReady();
+      });
+      grid.appendChild(item);
+    });
+
+    document.getElementById('step2num').classList.add('done');
+    document.getElementById('step2num').textContent = '✓';
+  } catch(e) {
+    alert('Erro ao acessar o site: ' + e.message);
+  } finally {
+    document.getElementById('catLoading').style.display = 'none';
+    document.getElementById('loadCatBtn').disabled = false;
   }
+}
 
-  function checkReady() {
-    const ready = keepaProducts.length > 0 && selectedCategories.length > 0;
-    const btn = document.getElementById('startBtn');
-    btn.disabled = !ready;
-    btn.style.opacity = ready ? '1' : '0.4';
-  }
-
-  // ─── CROSS REFERENCE ───
-async function crossReference(products) {
-  allResults = [];
-  setProgressTitle('Cruzando com produtos do Keepa...');
-  const BATCH = 3;
-
-  for (let i = 0; i < products.length; i += BATCH) {
-    const batch = products.slice(i, i+BATCH);
-    await Promise.all(batch.map(p => matchProduct(p)));
-    updateProgress(Math.min(i+BATCH, products.length), products.length, `${Math.min(i+BATCH, products.length)} de ${products.length} cruzados...`);
-    if (i+BATCH < products.length) await sleep(800);
-  }
-
-  // Sort: match first, then similar, then none
-  allResults.sort((a,b) => {
-    const order = { match:0, similar:1, none:2 };
-    return (order[a.matchType]||2) - (order[b.matchType]||2);
+function selectAllCats(select) {
+  document.querySelectorAll('.cat-item').forEach(item => {
+    if (select) { item.classList.add('selected'); item.querySelector('.cat-check').textContent = '☑'; }
+    else { item.classList.remove('selected'); item.querySelector('.cat-check').textContent = '☐'; }
   });
+  selectedCategories = select
+    ? [...document.querySelectorAll('.cat-item')].map(el => ({ url: el.dataset.url, name: el.dataset.name }))
+    : [];
+  checkReady();
+}
+
+function checkReady() {
+  const ready = keepaProducts.length > 0 && selectedCategories.length > 0;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.4';
+}
+
+// ─── CROSS REFERENCE ───
+async function startCrossRef() {
+  if (!keepaProducts.length) { alert('Carregue a planilha do Keepa primeiro.'); return; }
+  if (!selectedCategories.length) { alert('Selecione pelo menos uma categoria.'); return; }
+
+  document.getElementById('stepsSection').classList.remove('visible');
+  showProgress();
+  setProgressTitle('Coletando produtos do fornecedor...');
+  addFeed('🌐', 'Fornecedor', `${selectedCategories.length} categoria(s) selecionada(s)`);
+  addFeed('📊', 'Keepa', `${keepaProducts.length} produtos para cruzar`);
+
+  try {
+    // Scrape all selected categories
+    catalogProducts = [];
+    for (let i = 0; i < selectedCategories.length; i++) {
+      const cat = selectedCategories[i];
+      addFeed('📂', cat.name, 'coletando produtos...');
+      const prods = await scrapeCategory(cat);
+      catalogProducts.push(...prods);
+      updateProgress(i+1, selectedCategories.length, `${catalogProducts.length} produtos coletados...`);
+    }
+
+    // Deduplicate
+    const seen = new Set();
+    catalogProducts = catalogProducts.filter(p => { if(seen.has(p.url)) return false; seen.add(p.url); return true; });
+
+    if (!catalogProducts.length) { showError('Nenhum produto encontrado.'); return; }
+    addFeed('✅', `${catalogProducts.length} produtos`, 'coletados — iniciando cruzamento com Keepa');
+
+    // Cross reference
+    allResults = [];
+    setProgressTitle('Cruzando com produtos do Keepa...');
+    const BATCH = 3;
+    for (let i = 0; i < catalogProducts.length; i += BATCH) {
+      const batch = catalogProducts.slice(i, i+BATCH);
+      await Promise.all(batch.map(p => matchProduct(p)));
+      updateProgress(Math.min(i+BATCH, catalogProducts.length), catalogProducts.length,
+        `${Math.min(i+BATCH, catalogProducts.length)} de ${catalogProducts.length} cruzados...`);
+      if (i+BATCH < catalogProducts.length) await sleep(600);
+    }
+
+    allResults.sort((a,b) => { const o={match:0,similar:1,none:2}; return (o[a.matchType]||2)-(o[b.matchType]||2); });
+    showResults();
+  } catch(e) { showError('Erro: ' + e.message); }
+}
+
+async function scrapeCategory(cat) {
+  const products = [];
+  let page = 1, hasMore = true;
+  while (hasMore && page <= 10) {
+    try {
+      const resp = await fetch(`/api/scrape?action=products&url=${encodeURIComponent(cat.url)}&page=${page}`);
+      if (!resp.ok) break;
+      const data = await resp.json();
+      products.push(...(data.products||[]).map(p => ({...p, category: cat.name})));
+      hasMore = data.hasNextPage && data.products?.length > 0;
+      page++;
+      if (hasMore) await sleep(400);
+    } catch { break; }
+  }
+  return products;
 }
 
 async function matchProduct(product) {
   try {
-    addFeed('🔍', product.model, product.name || 'analisando...');
+    addFeed('🔍', product.name?.slice(0,30)||'Produto', product.category||'');
 
-    // Use AI to identify product and find best match in Keepa list
-    const result = await findBestMatch(product);
+    // Score keepa products by keyword overlap
+    const words = (product.name||'').toLowerCase().split(/\s+/).filter(w=>w.length>3);
+    const scored = keepaProducts.map(kp => {
+      const title = kp.title.toLowerCase();
+      const score = words.filter(w => title.includes(w)).length;
+      return {...kp, score};
+    }).sort((a,b)=>b.score-a.score).slice(0,15);
 
-    allResults.push({ ...product, ...result });
+    const keepaList = scored.map((kp,i) =>
+      `${i}: ASIN=${kp.asin} | "${kp.title.slice(0,80)}" | vendas=${kp.sales||'?'}/mês | ⭐${kp.rating||'?'} | R$${kp.price||'?'}`
+    ).join('\n');
 
-    const emoji = result.matchType === 'match' ? '✅' : result.matchType === 'similar' ? '🟡' : '❌';
-    const keepaP = result.keepaMatch;
-    addFeed(emoji, product.model, keepaP
-      ? `${result.matchType === 'match' ? 'Correspondência' : 'Semelhante'}: "${keepaP.title?.slice(0,40)}..." · ${keepaP.sales||'?'} vendas/mês`
-      : 'Sem correspondência no Keepa');
-  } catch(e) {
-    allResults.push({ ...product, matchType: 'none', keepaMatch: null, matchScore: 0, matchReason: e.message });
-    addFeed('⚠️', product.model, 'Erro: ' + e.message);
-  }
-}
+    const resp = await fetch(ANTHROPIC_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:300,
+        messages:[{role:'user',content:`Você é especialista em cruzamento de produtos para e-commerce.
 
-async function findBestMatch(product) {
-  // Prepare a condensed list of Keepa products for AI to compare
-  // Send top 30 most relevant by title keywords
-  const productWords = (product.name + ' ' + product.specs).toLowerCase().split(/\s+/).filter(w => w.length > 3);
-
-  // Score Keepa products by keyword overlap
-  const scored = keepaProducts.map(kp => {
-    const title = kp.title.toLowerCase();
-    const score = productWords.filter(w => title.includes(w)).length;
-    return { ...kp, score };
-  }).sort((a,b) => b.score - a.score).slice(0, 20);
-
-  // Build compact list for AI
-  const keepaList = scored.map((kp, i) =>
-    `${i}: ASIN=${kp.asin} | "${kp.title.slice(0,80)}" | vendas=${kp.sales||'?'}/mês | ⭐${kp.rating||'?'} | R$${kp.price||'?'}`
-  ).join('\n');
-
-  const resp = await fetch(ANTHROPIC_API, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      messages: [{ role:'user', content: [
-        ...(product.imgData ? [{ type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } }] : []),
-        { type:'text', text: `Você é um especialista em cruzamento de produtos para e-commerce.
-
-PRODUTO DO CATÁLOGO DO FORNECEDOR:
-- Modelo: ${product.model}
+PRODUTO DO SITE DO FORNECEDOR:
 - Nome: ${product.name}
-- Specs: ${product.specs}
+- Categoria: ${product.category}
+- Preço: R$${product.price||'?'}
+- URL: ${product.url}
 
 PRODUTOS DISPONÍVEIS NA AMAZON (do Keepa):
 ${keepaList}
 
-Analise o produto do fornecedor (use a imagem se disponível) e compare com os produtos do Keepa listados acima.
+Compare o produto do fornecedor com os produtos do Keepa e retorne SOMENTE JSON:
+{"matchIndex":<índice do melhor match ou -1>,"matchType":"match"|"similar"|"none","matchScore":<0-100>,"matchReason":"explicação curta em português"}`}]
+      })
+    });
 
-Retorne SOMENTE JSON:
-{
-  "matchIndex": <número do índice do melhor produto correspondente, ou -1 se nenhum>,
-  "matchType": "match" (produto idêntico ou mesmo tipo/função) | "similar" (produto similar mas não idêntico) | "none" (sem correspondência),
-  "matchScore": <0-100, confiança da correspondência>,
-  "matchReason": "explicação curta em português de por que é uma correspondência"
-}` }
-      ]}]
-    })
-  });
-
-  const data = await resp.json();
-  try {
+    const data = await resp.json();
     const parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
     const keepaMatch = parsed.matchIndex >= 0 && parsed.matchIndex < scored.length ? scored[parsed.matchIndex] : null;
-    return {
+
+    const result = {
+      ...product,
       matchType: keepaMatch ? parsed.matchType : 'none',
-      matchScore: parsed.matchScore || 0,
-      matchReason: parsed.matchReason || '',
+      matchScore: parsed.matchScore||0,
+      matchReason: parsed.matchReason||'',
       keepaMatch
     };
-  } catch {
-    return { matchType: 'none', matchScore: 0, matchReason: '', keepaMatch: null };
+    allResults.push(result);
+
+    const emoji = result.matchType==='match'?'✅':result.matchType==='similar'?'🟡':'❌';
+    addFeed(emoji, product.name?.slice(0,25)||'Produto',
+      keepaMatch ? `${keepaMatch.sales||'?'} vendas/mês · ⭐${keepaMatch.rating||'?'}` : 'Sem correspondência');
+  } catch(e) {
+    allResults.push({...product, matchType:'none', keepaMatch:null, matchScore:0, matchReason:''});
   }
 }
 
-// ─── RESULTS UI ───
+// ─── RESULTS ───
 function showResults() {
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultsSection').classList.add('visible');
@@ -571,10 +549,7 @@ function showResults() {
 function renderCards(results) {
   const grid = document.getElementById('resultsGrid');
   grid.innerHTML = '';
-  if (!results.length) {
-    grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`;
-    return;
-  }
+  if (!results.length) { grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`; return; }
   for (const r of results) grid.appendChild(createCard(r));
 }
 
@@ -582,35 +557,33 @@ function createCard(r) {
   const div = document.createElement('div');
   div.className = `pcard ${r.matchType}`;
   div.dataset.type = r.matchType;
-
   const kp = r.keepaMatch;
-  const badgeText = r.matchType==='match' ? '✓ Correspondência' : r.matchType==='similar' ? '~ Semelhante' : '✗ Não encontrado';
-  const salesClass = kp?.sales >= 100 ? 'good' : kp?.sales > 0 ? 'warn' : '';
-  const ratingClass = kp?.rating >= 4 ? 'good' : kp?.rating >= 3 ? 'warn' : kp?.rating ? 'bad' : '';
+  const badgeText = r.matchType==='match'?'✓ Correspondência':r.matchType==='similar'?'~ Semelhante':'✗ Não encontrado';
+  const salesClass = kp?.sales>=100?'good':kp?.sales>0?'warn':'';
+  const ratingClass = kp?.rating>=4?'good':kp?.rating>=3?'warn':kp?.rating?'bad':'';
 
-  const catImgSrc = r.imgData ? `data:image/jpeg;base64,${r.imgData}` : (r.image || '');
   div.innerHTML = `
     <div class="pcard-top">
       <div class="pcard-imgs">
-        <img class="cat-img" src="${catImgSrc}" alt="${r.name}" onerror="this.style.display='none'" title="Produto do catálogo">
+        <img class="cat-img" src="${r.image||''}" alt="${r.name}" onerror="this.style.display='none'" title="Produto do fornecedor">
         ${kp?.image ? `<img class="amz-img" src="${kp.image}" alt="Amazon" onerror="this.style.display='none'" title="Produto Amazon">` : '<div class="amz-img" style="background:var(--gray2);display:flex;align-items:center;justify-content:center;font-size:20px">🛒</div>'}
       </div>
       <div class="pcard-info">
-        <div class="pcard-model">${r.model} · Pág. ${r.pageNum}</div>
-        <div class="pcard-name">${r.name || 'Produto'}</div>
+        <div class="pcard-model">${r.category||''} · R$${r.price||'?'}</div>
+        <div class="pcard-name">${r.name||'Produto'}</div>
         <span class="match-badge ${r.matchType}">${badgeText}</span>
-        ${kp ? `<div class="amz-title" title="${kp.title}">${kp.title}</div>` : ''}
+        ${kp ? `<div class="amz-title">${kp.title}</div>` : ''}
       </div>
     </div>
     <div class="pcard-metrics">
-      <div class="metric"><div class="ml">Vendas/mês</div><div class="mv ${salesClass}">${kp?.sales || '—'}</div></div>
-      <div class="metric"><div class="ml">Avaliação</div><div class="mv ${ratingClass}">${kp?.rating ? kp.rating+'⭐' : '—'}</div></div>
-      <div class="metric"><div class="ml">Preço Amazon</div><div class="mv">${kp?.price ? 'R$'+kp.price : '—'}</div></div>
-      <div class="metric"><div class="ml">BSR</div><div class="mv">${kp?.bsr ? '#'+Number(kp.bsr).toLocaleString('pt-BR') : '—'}</div></div>
+      <div class="metric"><div class="ml">Vendas/mês</div><div class="mv ${salesClass}">${kp?.sales||'—'}</div></div>
+      <div class="metric"><div class="ml">Avaliação</div><div class="mv ${ratingClass}">${kp?.rating?kp.rating+'⭐':'—'}</div></div>
+      <div class="metric"><div class="ml">Preço Amazon</div><div class="mv">${kp?.price?'R$'+kp.price:'—'}</div></div>
+      <div class="metric"><div class="ml">BSR</div><div class="mv">${kp?.bsr?'#'+Number(kp.bsr).toLocaleString('pt-BR'):'—'}</div></div>
     </div>
     <div class="pcard-footer">
-      <span class="match-score" title="${r.matchReason}">${r.matchReason ? '💬 '+r.matchReason.slice(0,50)+'...' : ''}</span>
-      ${kp?.asin ? `<a href="https://www.amazon.com.br/dp/${kp.asin}" target="_blank" class="amz-link">Ver na Amazon ↗</a>` : ''}
+      <span style="color:var(--text-dim)">${r.matchReason?r.matchReason.slice(0,50)+'...':''}</span>
+      ${kp?.asin?`<a href="https://www.amazon.com.br/dp/${kp.asin}" target="_blank" class="amz-link">Ver na Amazon ↗</a>`:r.url?`<a href="${r.url}" target="_blank" class="amz-link">Ver produto ↗</a>`:''}
     </div>`;
   return div;
 }
@@ -618,8 +591,7 @@ function createCard(r) {
 function filterResults(type, btn) {
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const filtered = type==='all' ? allResults : allResults.filter(r=>r.matchType===type);
-  renderCards(filtered);
+  renderCards(type==='all' ? allResults : allResults.filter(r=>r.matchType===type));
 }
 
 // ─── PROGRESS UI ───
@@ -629,7 +601,7 @@ function showProgress() {
 }
 function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
 function updateProgress(cur, tot, status) {
-  const pct = tot>0 ? Math.round((cur/tot)*100) : 0;
+  const pct = tot>0?Math.round((cur/tot)*100):0;
   document.getElementById('progressBar').style.width = pct+'%';
   document.getElementById('progressCount').textContent = `${cur} / ${tot}`;
   document.getElementById('progressStatus').textContent = status;
@@ -638,7 +610,7 @@ function addFeed(icon, name, text) {
   const feed = document.getElementById('liveFeed');
   const item = document.createElement('div');
   item.className = 'fi';
-  item.innerHTML = `<span class="fi-icon">${icon}</span><span><span class="fi-name">${name}</span> <span class="fi-text">· ${text}</span></span>`;
+  item.innerHTML = `<span style="font-size:14px;flex-shrink:0">${icon}</span><span><span class="fi-name">${name}</span> <span class="fi-text">· ${text}</span></span>`;
   feed.appendChild(item);
   feed.scrollTop = feed.scrollHeight;
 }
@@ -650,712 +622,30 @@ function showError(msg) {
 
 // ─── EXPORT ───
 function exportCSV() {
-  const rows = [['Modelo','Nome do Catálogo','Tipo','ASIN Amazon','Título Amazon','Vendas/mês','Avaliação','Preço','BSR','Confiança','Motivo','Link Amazon','Página']];
+  const rows = [['Nome Fornecedor','Categoria','Preço Fornecedor','URL Fornecedor','Tipo','ASIN Amazon','Título Amazon','Vendas/mês','Avaliação','Preço Amazon','BSR','Confiança','Motivo','Link Amazon']];
   for (const r of allResults) {
-    const kp = r.keepaMatch || {};
-    rows.push([r.model, r.name||'', r.matchType, kp.asin||'', kp.title||'', kp.sales||'', kp.rating||'', kp.price||'', kp.bsr||'', r.matchScore||'', r.matchReason||'', kp.asin?`https://www.amazon.com.br/dp/${kp.asin}`:'', r.pageNum]);
+    const kp = r.keepaMatch||{};
+    rows.push([r.name||'',r.category||'',r.price||'',r.url||'',r.matchType,kp.asin||'',kp.title||'',kp.sales||'',kp.rating||'',kp.price||'',kp.bsr||'',r.matchScore||'',r.matchReason||'',kp.asin?`https://www.amazon.com.br/dp/${kp.asin}`:'']);
   }
   const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download = 'cruzamento-keepa-catalogo.csv';
+  a.download = 'cruzamento-minerador.csv';
   a.click();
 }
 
 // ─── RESET ───
 function resetAll() {
-    keepaProducts = []; catalogProducts = []; allResults = [];
-    selectedCategories = [];
-    document.getElementById('keepaDrop').style.display = 'block';
-    document.getElementById('keepaDone').style.display = 'none';
-    document.getElementById('categoriesBox').style.display = 'none';
-    document.getElementById('categoriesGrid').innerHTML = '';
-    document.getElementById('supplierUrl').value = '';
-    document.getElementById('step1num').classList.remove('done'); document.getElementById('step1num').textContent = '1';
-    document.getElementById('step2num').classList.remove('done'); document.getElementById('step2num').textContent = '2';
-    document.getElementById('keepaFile').value = '';
-    document.getElementById('liveFeed').innerHTML = '';
-    document.getElementById('progressSection').classList.remove('visible');
-    document.getElementById('resultsSection').classList.remove('visible');
-    document.getElementById('stepsSection').classList.add('visible');
-    checkReady();
-  }OCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Minerador de Produtos · All Vedere Commerce</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<style>
-  :root {
-    --black:#0a0a0a;--yellow:#FFD700;--yellow-dim:#f5c800;--green:#00c853;--green-dim:#1a3d2b;
-    --red:#ff3b30;--red-dim:#3d1a1a;--mid:#ff9500;--mid-dim:#3d2a00;--gray:#1c1c1e;
-    --gray2:#2c2c2e;--gray3:#3a3a3c;--gray4:#636366;--text:#f5f5f7;--text-dim:#8e8e93;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--black);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh}
-  .header{background:var(--gray);border-bottom:1px solid var(--gray3);padding:14px 28px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
-  .header-icon{width:36px;height:36px;background:var(--yellow);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
-  .header h1{font-size:16px;font-weight:700}
-  .header p{font-size:12px;color:var(--text-dim)}
-  .main{max-width:1200px;margin:0 auto;padding:32px 24px}
-  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
-  .btn-yellow{background:var(--yellow);color:#000}.btn-yellow:hover{background:var(--yellow-dim)}
-  .btn-ghost{background:var(--gray2);color:var(--text)}.btn-ghost:hover{background:var(--gray3)}
-
-  /* LOGIN */
-  #loginOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px}
-  .login-box{background:var(--gray);border:1px solid var(--gray3);border-radius:24px;width:100%;max-width:420px;padding:40px 36px}
-  .login-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px}
-  .login-logo-icon{width:48px;height:48px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
-  .field{margin-bottom:16px}
-  .field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);display:block;margin-bottom:8px}
-  .field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none}
-  .field input:focus{border-color:var(--yellow)}
-  #loginError{display:none;background:var(--red-dim);color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px}
-
-  /* UPLOAD STEPS */
-  .steps{display:none;flex-direction:column;gap:20px;max-width:600px;margin:0 auto}
-  .steps.visible{display:flex}
-  .step-card{background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:24px}
-  .step-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-  .step-num{width:28px;height:28px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0}
-  .step-num.done{background:var(--green)}
-  .step-header h3{font-size:15px;font-weight:600}
-  .step-header p{font-size:13px;color:var(--text-dim)}
-  .drop-zone{border:2px dashed var(--gray3);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
-  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--yellow);background:#1a1a0a}
-  .drop-zone .dz-icon{font-size:36px;margin-bottom:10px}
-  .drop-zone p{font-size:14px;color:var(--text-dim)}
-  .drop-zone input{display:none}
-  .file-done{display:flex;align-items:center;gap:12px;background:var(--green-dim);border-radius:10px;padding:12px 16px}
-  .file-done .fd-icon{font-size:20px}
-  .file-done .fd-name{font-size:14px;font-weight:600;color:var(--green)}
-  .file-done .fd-sub{font-size:12px;color:var(--text-dim)}
-
-  /* PAGE RANGE */
-  .page-range{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
-  .pr-field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);display:block;margin-bottom:6px}
-  .pr-field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:10px;color:var(--text);font-size:18px;font-weight:700;outline:none;text-align:center}
-  .pr-field input:focus{border-color:var(--yellow)}
-
-  /* PROGRESS */
-  .progress-section{display:none;flex-direction:column;gap:16px}
-  .progress-section.visible{display:flex}
-  .progress-card{background:var(--gray);border-radius:16px;padding:24px;border:1px solid var(--gray3)}
-  .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-  .progress-header h3{font-size:15px;font-weight:600}
-  .prog-count{font-size:13px;color:var(--text-dim);background:var(--gray2);padding:4px 10px;border-radius:20px}
-  .prog-track{height:6px;background:var(--gray3);border-radius:3px;overflow:hidden}
-  .prog-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .4s ease;width:0%}
-  .prog-status{margin-top:10px;font-size:13px;color:var(--text-dim)}
-  .live-feed{background:var(--gray);border-radius:16px;border:1px solid var(--gray3);overflow:hidden;max-height:260px}
-  .lf-header{padding:12px 18px;border-bottom:1px solid var(--gray3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s infinite}
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-  .lf-items{padding:6px 0;overflow-y:auto;max-height:210px}
-  .fi{padding:9px 18px;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a;animation:slideIn .2s ease}
-  @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
-  .fi-icon{font-size:14px;flex-shrink:0}
-  .fi-name{color:var(--text);font-weight:500}
-  .fi-text{color:var(--text-dim)}
-
-  /* RESULTS */
-  .results-section{display:none}
-  .results-section.visible{display:block}
-  .results-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
-  .results-header h2{font-size:22px;font-weight:700}
-  .results-header p{font-size:14px;color:var(--text-dim);margin-top:2px}
-  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
-  .stat-card{background:var(--gray);border-radius:14px;padding:16px 18px;border:1px solid var(--gray3)}
-  .stat-card .slabel{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);margin-bottom:8px}
-  .stat-card .svalue{font-size:26px;font-weight:700;letter-spacing:-1px}
-  .stat-card.match .svalue{color:var(--green)}
-  .stat-card.similar .svalue{color:var(--mid)}
-  .stat-card.none .svalue{color:var(--red)}
-  .stat-card.total .svalue{color:var(--yellow)}
-  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;background:var(--gray);border:1px solid var(--gray3);border-radius:14px;padding:12px 18px}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--gray3);background:var(--gray2);color:var(--text-dim);transition:all .15s}
-  .tab.active{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:600}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
-
-  /* PRODUCT CARD */
-  .pcard{background:var(--gray);border-radius:14px;border:1px solid var(--gray3);overflow:hidden;transition:transform .15s}
-  .pcard:hover{transform:translateY(-2px)}
-  .pcard.match{border-left:3px solid var(--green)}
-  .pcard.similar{border-left:3px solid var(--mid)}
-  .pcard.none{border-left:3px solid var(--red)}
-
-  .pcard-top{padding:14px;display:flex;gap:14px;align-items:flex-start}
-  .pcard-imgs{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
-  .cat-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
-  .amz-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
-  .pcard-info{flex:1;min-width:0}
-  .pcard-model{font-size:11px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-  .pcard-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:6px}
-  .match-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-  .match-badge.match{background:var(--green-dim);color:var(--green)}
-  .match-badge.similar{background:var(--mid-dim);color:var(--mid)}
-  .match-badge.none{background:var(--red-dim);color:var(--red)}
-
-  .amz-title{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-
-  .pcard-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray3);border-top:1px solid var(--gray3)}
-  .metric{background:var(--gray);padding:10px 12px}
-  .metric .ml{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:3px}
-  .metric .mv{font-size:14px;font-weight:700}
-  .metric .mv.good{color:var(--green)}.metric .mv.warn{color:var(--mid)}.metric .mv.bad{color:var(--red)}
-
-  .pcard-footer{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gray3)}
-  .amz-link{font-size:12px;color:var(--yellow);text-decoration:none}
-  .amz-link:hover{text-decoration:underline}
-  .match-score{font-size:11px;color:var(--text-dim)}
-
-  @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.main{padding:20px 16px}}
-</style>
-</head>
-<body>
-
-<!-- LOGIN -->
-<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
-  <div class="login-box">
-    <div class="login-logo">
-      <div class="login-logo-icon">📦</div>
-      <div><div style="font-size:18px;font-weight:700">Minerador de Produtos</div><div style="font-size:13px;color:var(--text-dim)">All Vedere Commerce</div></div>
-    </div>
-    <div class="field"><label>Usuário</label><input id="inputUser" type="text" placeholder="Digite seu usuário"></div>
-    <div class="field" style="margin-bottom:24px"><label>Senha</label><input id="inputPass" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <div id="loginError">Usuário ou senha incorretos.</div>
-    <button onclick="doLogin()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
-  </div>
-</div>
-
-<div class="header">
-  <div class="header-icon">📦</div>
-  <div><h1>Minerador de Produtos</h1><p>All Vedere Commerce</p></div>
-  <div style="margin-left:auto">
-    <button onclick="doLogout()" style="background:var(--gray2);color:var(--text-dim);border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer">🔒 Sair</button>
-  </div>
-</div>
-
-<div class="main">
-
-  <!-- STEPS -->
-  <div class="steps" id="stepsSection">
-
-    <!-- Step 1: Keepa -->
-    <div class="step-card">
-      <div class="step-header">
-        <div class="step-num" id="step1num">1</div>
-        <div><h3>Planilha do Keepa</h3><p>Suba o arquivo Excel exportado do Keepa com produtos de alta demanda</p></div>
-      </div>
-      <div class="drop-zone" id="keepaDrop" onclick="document.getElementById('keepaFile').click()">
-        <div class="dz-icon">📊</div>
-        <p>Arraste o arquivo .xlsx do Keepa aqui ou clique para selecionar</p>
-        <input type="file" id="keepaFile" accept=".xlsx,.xls,.csv">
-      </div>
-      <div id="keepaDone" style="display:none"></div>
-    </div>
-
-    <!-- Step 2: Supplier URL -->
-    <div class="step-card">
-      <div class="step-header">
-        <div class="step-num" id="step2num">2</div>
-        <div><h3>Site do Fornecedor</h3><p>Cole a URL do site do fornecedor e selecione as categorias</p></div>
-      </div>
-      <div id="urlInputBox">
-        <div style="display:flex;gap:10px;margin-bottom:12px;">
-          <input id="supplierUrl" type="url" placeholder="https://www.utimix.com" 
-            style="flex:1;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none;"
-            onkeydown="if(event.key==='Enter')loadCategories()">
-          <button class="btn btn-yellow" onclick="loadCategories()" id="loadCatBtn">🔍 Buscar categorias</button>
-        </div>
-        <div id="catLoading" style="display:none;font-size:13px;color:var(--text-dim);padding:8px 0;">⏳ Buscando categorias...</div>
-      </div>
-      <div id="categoriesBox" style="display:none;">
-        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
-          <span id="catCount"></span>
-          <div style="display:flex;gap:8px;">
-            <button onclick="selectAllCats(true)" style="font-size:12px;color:var(--yellow);background:none;border:none;cursor:pointer;">Selecionar todas</button>
-            <button onclick="selectAllCats(false)" style="font-size:12px;color:var(--text-dim);background:none;border:none;cursor:pointer;">Desmarcar todas</button>
-          </div>
-        </div>
-        <div id="categoriesGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;max-height:280px;overflow-y:auto;"></div>
-      </div>
-      <div id="step2Done" style="display:none"></div>
-    </div>
-
-    <!-- Step 3: Start -->
-    <div style="display:flex;gap:12px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="resetAll()">↩ Limpar</button>
-      <button class="btn btn-yellow" id="startBtn" onclick="startCrossRef()" disabled style="opacity:.4">▶ Iniciar cruzamento</button>
-    </div>
-  </div>
-
-    <!-- PROGRESS -->
-  <div class="progress-section" id="progressSection">
-    <div class="progress-card">
-      <div class="progress-header">
-        <h3 id="progressTitle">Processando...</h3>
-        <span class="prog-count" id="progressCount">0 / 0</span>
-      </div>
-      <div class="prog-track"><div class="prog-fill" id="progressBar"></div></div>
-      <div class="prog-status" id="progressStatus">Iniciando...</div>
-    </div>
-    <div class="live-feed">
-      <div class="lf-header"><div class="live-dot"></div>Análise em tempo real</div>
-      <div class="lf-items" id="liveFeed"></div>
-    </div>
-  </div>
-
-  <!-- RESULTS -->
-  <div class="results-section" id="resultsSection">
-    <div class="results-header">
-      <div><h2>Cruzamento de Produtos</h2><p id="resultsSub"></p></div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <button class="btn btn-ghost" onclick="resetAll()">↩ Novo cruzamento</button>
-        <button class="btn btn-yellow" onclick="exportCSV()">⬇ Exportar CSV</button>
-      </div>
-    </div>
-    <div class="stats-row">
-      <div class="stat-card total"><div class="slabel">Total do Catálogo</div><div class="svalue" id="statTotal">0</div></div>
-      <div class="stat-card match"><div class="slabel">✓ Correspondência</div><div class="svalue" id="statMatch">0</div></div>
-      <div class="stat-card similar"><div class="slabel">~ Semelhante</div><div class="svalue" id="statSimilar">0</div></div>
-      <div class="stat-card none"><div class="slabel">✗ Não encontrado</div><div class="svalue" id="statNone">0</div></div>
-    </div>
-    <div class="toolbar">
-      <div class="tabs">
-        <button class="tab active" onclick="filterResults('all',this)">Todos</button>
-        <button class="tab" onclick="filterResults('match',this)">✓ Correspondência</button>
-        <button class="tab" onclick="filterResults('similar',this)">~ Semelhante</button>
-        <button class="tab" onclick="filterResults('none',this)">✗ Não encontrado</button>
-      </div>
-      <span style="font-size:12px;color:var(--text-dim)">Ordenado por relevância</span>
-    </div>
-    <div class="grid" id="resultsGrid"></div>
-  </div>
-
-</div>
-
-<script>
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-const VALID_USER = 'Allvedere';
-const VALID_PASS = 'Lelisx@nd4';
-const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
-const ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6nxPVlaaMTm','uhudEoOsJOxe2W4Zv8iv','kZbAR9G8_3-kMvvEUYg-','vS9dFAAA'].join('');
-
-let keepaProducts = [];
-let catalogProducts = [];
-let allResults = [];
-let pdfFile = null;
-let totalPdfPages = 0;
-
-// ─── LOGIN ───
-function checkLogin() {
-  if (!sessionStorage.getItem('logged')) {
-    document.getElementById('loginOverlay').style.display = 'flex';
-    document.getElementById('stepsSection').classList.remove('visible');
-  } else {
-    document.getElementById('stepsSection').classList.add('visible');
-  }
-}
-function doLogin() {
-  const u = document.getElementById('inputUser').value.trim();
-  const p = document.getElementById('inputPass').value;
-  if (u === VALID_USER && p === VALID_PASS) {
-    sessionStorage.setItem('logged','1');
-    document.getElementById('loginOverlay').style.display = 'none';
-    document.getElementById('stepsSection').classList.add('visible');
-  } else {
-    document.getElementById('loginError').style.display = 'block';
-  }
-}
-function doLogout() { sessionStorage.clear(); location.reload(); }
-checkLogin();
-
-// ─── DRAG & DROP ───
-  const uploadZone = document.getElementById('keepaDrop');
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f) loadKeepa(f); });
-  document.getElementById('keepaFile').addEventListener('change', e => { if (e.target.files[0]) loadKeepa(e.target.files[0]); });
-
-  // ─── CATEGORIES ───
-  let selectedCategories = [];
-
-  async function loadCategories() {
-    const urlInput = document.getElementById('supplierUrl').value.trim();
-    if (!urlInput) { alert('Cole a URL do site do fornecedor.'); return; }
-    
-    let supplierUrl = urlInput;
-    if (!supplierUrl.startsWith('http')) supplierUrl = 'https://' + supplierUrl;
-
-    document.getElementById('catLoading').style.display = 'block';
-    document.getElementById('categoriesBox').style.display = 'none';
-    document.getElementById('loadCatBtn').disabled = true;
-
-    try {
-      const resp = await fetch(`/api/scrape?action=categories&url=${encodeURIComponent(supplierUrl)}`);
-      const data = await resp.json();
-
-      if (!data.categories || data.categories.length === 0) {
-        alert('Não encontrei categorias neste site. Tente uma URL de categoria específica.');
-        return;
-      }
-
-      document.getElementById('catLoading').style.display = 'none';
-      document.getElementById('categoriesBox').style.display = 'block';
-      document.getElementById('catCount').textContent = `${data.categories.length} categorias encontradas`;
-
-      const grid = document.getElementById('categoriesGrid');
-      grid.innerHTML = '';
-      selectedCategories = [];
-
-      data.categories.forEach(cat => {
-        const item = document.createElement('div');
-        item.style.cssText = 'background:var(--gray2);border:2px solid var(--gray3);border-radius:10px;padding:10px 12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;';
-        item.dataset.url = cat.url;
-        item.dataset.name = cat.name;
-        item.innerHTML = `<span style="font-size:16px">☐</span><span style="font-size:13px;font-weight:500">${cat.name}</span>`;
-        item.addEventListener('click', () => toggleCat(item, cat));
-        grid.appendChild(item);
-      });
-
-      checkReady();
-    } catch(e) {
-      alert('Erro ao acessar o site: ' + e.message);
-    } finally {
-      document.getElementById('loadCatBtn').disabled = false;
-      document.getElementById('catLoading').style.display = 'none';
-    }
-  }
-
-  function toggleCat(item, cat) {
-    const isSelected = item.style.borderColor === 'rgb(255, 215, 0)';
-    if (isSelected) {
-      item.style.borderColor = 'var(--gray3)';
-      item.style.background = 'var(--gray2)';
-      item.querySelector('span').textContent = '☐';
-      selectedCategories = selectedCategories.filter(c => c.url !== cat.url);
-    } else {
-      item.style.borderColor = '#FFD700';
-      item.style.background = '#1a1a0a';
-      item.querySelector('span').textContent = '☑';
-      selectedCategories.push(cat);
-    }
-    checkReady();
-  }
-
-  function selectAllCats(select) {
-    const items = document.querySelectorAll('#categoriesGrid > div');
-    selectedCategories = [];
-    items.forEach(item => {
-      const cat = { url: item.dataset.url, name: item.dataset.name };
-      if (select) {
-        item.style.borderColor = '#FFD700';
-        item.style.background = '#1a1a0a';
-        item.querySelector('span').textContent = '☑';
-        selectedCategories.push(cat);
-      } else {
-        item.style.borderColor = 'var(--gray3)';
-        item.style.background = 'var(--gray2)';
-        item.querySelector('span').textContent = '☐';
-      }
-    });
-    checkReady();
-  }
-
-  // ─── START CROSS REF ───
-  async function startCrossRef() {
-    if (!selectedCategories.length) { alert('Selecione pelo menos uma categoria.'); return; }
-    if (!keepaProducts.length) { alert('Carregue a planilha do Keepa primeiro.'); return; }
-
-    document.getElementById('stepsSection').classList.remove('visible');
-    showProgress();
-    setProgressTitle('Coletando produtos do site do fornecedor...');
-    addFeed('🌐', 'Fornecedor', `${selectedCategories.length} categoria(s) selecionada(s)`);
-    addFeed('📊', 'Keepa', `${keepaProducts.length} produtos para cruzar`);
-
-    try {
-      catalogProducts = [];
-      for (let i = 0; i < selectedCategories.length; i++) {
-        const cat = selectedCategories[i];
-        addFeed('📂', cat.name, 'coletando produtos...');
-        const products = await scrapeCategory(cat);
-        catalogProducts.push(...products);
-        updateProgress(i + 1, selectedCategories.length, `${catalogProducts.length} produtos coletados...`);
-      }
-
-      // Deduplicate
-      const seen = new Set();
-      catalogProducts = catalogProducts.filter(p => { if (seen.has(p.url)) return false; seen.add(p.url); return true; });
-
-      if (!catalogProducts.length) { showError('Nenhum produto encontrado.'); return; }
-      addFeed('✅', `${catalogProducts.length} produtos`, 'coletados — iniciando cruzamento');
-
-      await crossReference(catalogProducts);
-      showResults();
-    } catch(e) { showError('Erro: ' + e.message); }
-  }
-
-  async function scrapeCategory(cat) {
-    const products = [];
-    let page = 1;
-    let hasMore = true;
-    while (hasMore && page <= 10) {
-      try {
-        const resp = await fetch(`/api/scrape?action=products&url=${encodeURIComponent(cat.url)}&page=${page}`);
-        if (!resp.ok) break;
-        const data = await resp.json();
-        const tagged = (data.products || []).map(p => ({ ...p, category: cat.name }));
-        products.push(...tagged);
-        hasMore = data.hasNextPage && data.products?.length > 0;
-        page++;
-        if (hasMore) await sleep(400);
-      } catch { break; }
-    }
-    return products;
-  }
-
-  function checkReady() {
-    const ready = keepaProducts.length > 0 && selectedCategories.length > 0;
-    const btn = document.getElementById('startBtn');
-    btn.disabled = !ready;
-    btn.style.opacity = ready ? '1' : '0.4';
-  }
-
-  // ─── CROSS REFERENCE ───
-async function crossReference(products) {
-  allResults = [];
-  setProgressTitle('Cruzando com produtos do Keepa...');
-  const BATCH = 3;
-
-  for (let i = 0; i < products.length; i += BATCH) {
-    const batch = products.slice(i, i+BATCH);
-    await Promise.all(batch.map(p => matchProduct(p)));
-    updateProgress(Math.min(i+BATCH, products.length), products.length, `${Math.min(i+BATCH, products.length)} de ${products.length} cruzados...`);
-    if (i+BATCH < products.length) await sleep(800);
-  }
-
-  // Sort: match first, then similar, then none
-  allResults.sort((a,b) => {
-    const order = { match:0, similar:1, none:2 };
-    return (order[a.matchType]||2) - (order[b.matchType]||2);
-  });
-}
-
-async function matchProduct(product) {
-  try {
-    addFeed('🔍', product.model, product.name || 'analisando...');
-
-    // Use AI to identify product and find best match in Keepa list
-    const result = await findBestMatch(product);
-
-    allResults.push({ ...product, ...result });
-
-    const emoji = result.matchType === 'match' ? '✅' : result.matchType === 'similar' ? '🟡' : '❌';
-    const keepaP = result.keepaMatch;
-    addFeed(emoji, product.model, keepaP
-      ? `${result.matchType === 'match' ? 'Correspondência' : 'Semelhante'}: "${keepaP.title?.slice(0,40)}..." · ${keepaP.sales||'?'} vendas/mês`
-      : 'Sem correspondência no Keepa');
-  } catch(e) {
-    allResults.push({ ...product, matchType: 'none', keepaMatch: null, matchScore: 0, matchReason: e.message });
-    addFeed('⚠️', product.model, 'Erro: ' + e.message);
-  }
-}
-
-async function findBestMatch(product) {
-  // Prepare a condensed list of Keepa products for AI to compare
-  // Send top 30 most relevant by title keywords
-  const productWords = (product.name + ' ' + product.specs).toLowerCase().split(/\s+/).filter(w => w.length > 3);
-
-  // Score Keepa products by keyword overlap
-  const scored = keepaProducts.map(kp => {
-    const title = kp.title.toLowerCase();
-    const score = productWords.filter(w => title.includes(w)).length;
-    return { ...kp, score };
-  }).sort((a,b) => b.score - a.score).slice(0, 20);
-
-  // Build compact list for AI
-  const keepaList = scored.map((kp, i) =>
-    `${i}: ASIN=${kp.asin} | "${kp.title.slice(0,80)}" | vendas=${kp.sales||'?'}/mês | ⭐${kp.rating||'?'} | R$${kp.price||'?'}`
-  ).join('\n');
-
-  const resp = await fetch(ANTHROPIC_API, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-    body: JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 400,
-      messages: [{ role:'user', content: [
-        ...(product.imgData ? [{ type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } }] : []),
-        { type:'text', text: `Você é um especialista em cruzamento de produtos para e-commerce.
-
-PRODUTO DO CATÁLOGO DO FORNECEDOR:
-- Modelo: ${product.model}
-- Nome: ${product.name}
-- Specs: ${product.specs}
-
-PRODUTOS DISPONÍVEIS NA AMAZON (do Keepa):
-${keepaList}
-
-Analise o produto do fornecedor (use a imagem se disponível) e compare com os produtos do Keepa listados acima.
-
-Retorne SOMENTE JSON:
-{
-  "matchIndex": <número do índice do melhor produto correspondente, ou -1 se nenhum>,
-  "matchType": "match" (produto idêntico ou mesmo tipo/função) | "similar" (produto similar mas não idêntico) | "none" (sem correspondência),
-  "matchScore": <0-100, confiança da correspondência>,
-  "matchReason": "explicação curta em português de por que é uma correspondência"
-}` }
-      ]}]
-    })
-  });
-
-  const data = await resp.json();
-  try {
-    const parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
-    const keepaMatch = parsed.matchIndex >= 0 && parsed.matchIndex < scored.length ? scored[parsed.matchIndex] : null;
-    return {
-      matchType: keepaMatch ? parsed.matchType : 'none',
-      matchScore: parsed.matchScore || 0,
-      matchReason: parsed.matchReason || '',
-      keepaMatch
-    };
-  } catch {
-    return { matchType: 'none', matchScore: 0, matchReason: '', keepaMatch: null };
-  }
-}
-
-// ─── RESULTS UI ───
-function showResults() {
-  document.getElementById('progressSection').classList.remove('visible');
-  document.getElementById('resultsSection').classList.add('visible');
-
-  const total = allResults.length;
-  const match = allResults.filter(r=>r.matchType==='match').length;
-  const similar = allResults.filter(r=>r.matchType==='similar').length;
-  const none = allResults.filter(r=>r.matchType==='none').length;
-
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statMatch').textContent = match;
-  document.getElementById('statSimilar').textContent = similar;
-  document.getElementById('statNone').textContent = none;
-  document.getElementById('resultsSub').textContent = `${total} produtos analisados · ${match} correspondências · ${similar} semelhantes`;
-
-  renderCards(allResults);
-}
-
-function renderCards(results) {
-  const grid = document.getElementById('resultsGrid');
-  grid.innerHTML = '';
-  if (!results.length) {
-    grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`;
-    return;
-  }
-  for (const r of results) grid.appendChild(createCard(r));
-}
-
-function createCard(r) {
-  const div = document.createElement('div');
-  div.className = `pcard ${r.matchType}`;
-  div.dataset.type = r.matchType;
-
-  const kp = r.keepaMatch;
-  const badgeText = r.matchType==='match' ? '✓ Correspondência' : r.matchType==='similar' ? '~ Semelhante' : '✗ Não encontrado';
-  const salesClass = kp?.sales >= 100 ? 'good' : kp?.sales > 0 ? 'warn' : '';
-  const ratingClass = kp?.rating >= 4 ? 'good' : kp?.rating >= 3 ? 'warn' : kp?.rating ? 'bad' : '';
-
-  const catImgSrc = r.imgData ? `data:image/jpeg;base64,${r.imgData}` : (r.image || '');
-  div.innerHTML = `
-    <div class="pcard-top">
-      <div class="pcard-imgs">
-        <img class="cat-img" src="${catImgSrc}" alt="${r.name}" onerror="this.style.display='none'" title="Produto do catálogo">
-        ${kp?.image ? `<img class="amz-img" src="${kp.image}" alt="Amazon" onerror="this.style.display='none'" title="Produto Amazon">` : '<div class="amz-img" style="background:var(--gray2);display:flex;align-items:center;justify-content:center;font-size:20px">🛒</div>'}
-      </div>
-      <div class="pcard-info">
-        <div class="pcard-model">${r.model} · Pág. ${r.pageNum}</div>
-        <div class="pcard-name">${r.name || 'Produto'}</div>
-        <span class="match-badge ${r.matchType}">${badgeText}</span>
-        ${kp ? `<div class="amz-title" title="${kp.title}">${kp.title}</div>` : ''}
-      </div>
-    </div>
-    <div class="pcard-metrics">
-      <div class="metric"><div class="ml">Vendas/mês</div><div class="mv ${salesClass}">${kp?.sales || '—'}</div></div>
-      <div class="metric"><div class="ml">Avaliação</div><div class="mv ${ratingClass}">${kp?.rating ? kp.rating+'⭐' : '—'}</div></div>
-      <div class="metric"><div class="ml">Preço Amazon</div><div class="mv">${kp?.price ? 'R$'+kp.price : '—'}</div></div>
-      <div class="metric"><div class="ml">BSR</div><div class="mv">${kp?.bsr ? '#'+Number(kp.bsr).toLocaleString('pt-BR') : '—'}</div></div>
-    </div>
-    <div class="pcard-footer">
-      <span class="match-score" title="${r.matchReason}">${r.matchReason ? '💬 '+r.matchReason.slice(0,50)+'...' : ''}</span>
-      ${kp?.asin ? `<a href="https://www.amazon.com.br/dp/${kp.asin}" target="_blank" class="amz-link">Ver na Amazon ↗</a>` : ''}
-    </div>`;
-  return div;
-}
-
-function filterResults(type, btn) {
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const filtered = type==='all' ? allResults : allResults.filter(r=>r.matchType===type);
-  renderCards(filtered);
-}
-
-// ─── PROGRESS UI ───
-function showProgress() {
-  document.getElementById('progressSection').classList.add('visible');
-  document.getElementById('resultsSection').classList.remove('visible');
-}
-function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
-function updateProgress(cur, tot, status) {
-  const pct = tot>0 ? Math.round((cur/tot)*100) : 0;
-  document.getElementById('progressBar').style.width = pct+'%';
-  document.getElementById('progressCount').textContent = `${cur} / ${tot}`;
-  document.getElementById('progressStatus').textContent = status;
-}
-function addFeed(icon, name, text) {
-  const feed = document.getElementById('liveFeed');
-  const item = document.createElement('div');
-  item.className = 'fi';
-  item.innerHTML = `<span class="fi-icon">${icon}</span><span><span class="fi-name">${name}</span> <span class="fi-text">· ${text}</span></span>`;
-  feed.appendChild(item);
-  feed.scrollTop = feed.scrollHeight;
-}
-function showError(msg) {
-  document.getElementById('progressSection').innerHTML = `
-    <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:20px;font-size:14px;color:var(--text-dim)">⚠️ ${msg}</div>
-    <button class="btn btn-ghost" onclick="resetAll()">↩ Tentar novamente</button>`;
-}
-
-// ─── EXPORT ───
-function exportCSV() {
-  const rows = [['Modelo','Nome do Catálogo','Tipo','ASIN Amazon','Título Amazon','Vendas/mês','Avaliação','Preço','BSR','Confiança','Motivo','Link Amazon','Página']];
-  for (const r of allResults) {
-    const kp = r.keepaMatch || {};
-    rows.push([r.model, r.name||'', r.matchType, kp.asin||'', kp.title||'', kp.sales||'', kp.rating||'', kp.price||'', kp.bsr||'', r.matchScore||'', r.matchReason||'', kp.asin?`https://www.amazon.com.br/dp/${kp.asin}`:'', r.pageNum]);
-  }
-  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download = 'cruzamento-keepa-catalogo.csv';
-  a.click();
-}
-
-// ─── RESET ───
-function resetAll() {
-  keepaProducts = []; catalogProducts = []; allResults = []; pdfFile = null;
-  document.getElementById('keepaDrop').style.display = 'block';
-  document.getElementById('keepaDone').style.display = 'none';
-  document.getElementById('pdfDrop').style.display = 'block';
-  document.getElementById('pdfDone').style.display = 'none';
-  document.getElementById('pageRangeBox').style.display = 'none';
-  document.getElementById('step1num').classList.remove('done'); document.getElementById('step1num').textContent = '1';
-  document.getElementById('step2num').classList.remove('done'); document.getElementById('step2num').textContent = '2';
-  document.getElementById('keepaFile').value = '';
-  document.getElementById('pdfFile').value = '';
-  document.getElementById('liveFeed').innerHTML = '';
+  keepaProducts=[]; catalogProducts=[]; allResults=[]; selectedCategories=[];
+  document.getElementById('keepaDrop').style.display='block';
+  document.getElementById('keepaDone').style.display='none';
+  document.getElementById('categoriesBox').style.display='none';
+  document.getElementById('catGrid').innerHTML='';
+  document.getElementById('supplierUrl').value='';
+  document.getElementById('keepaFile').value='';
+  document.getElementById('step1num').classList.remove('done'); document.getElementById('step1num').textContent='1';
+  document.getElementById('step2num').classList.remove('done'); document.getElementById('step2num').textContent='2';
+  document.getElementById('liveFeed').innerHTML='';
   document.getElementById('progressSection').classList.remove('visible');
   document.getElementById('resultsSection').classList.remove('visible');
   document.getElementById('stepsSection').classList.add('visible');
