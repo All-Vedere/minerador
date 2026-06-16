@@ -3,232 +3,205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- v3.0 -->
 <title>Minerador de Produtos · All Vedere Commerce</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root {
-    --black: #0a0a0a; --white: #ffffff; --yellow: #FFD700; --yellow-dim: #f5c800;
-    --green: #00c853; --green-dim: #1a3d2b; --red: #ff3b30; --red-dim: #3d1a1a;
-    --mid: #ff9500; --mid-dim: #3d2a00; --gray: #1c1c1e; --gray2: #2c2c2e;
-    --gray3: #3a3a3c; --gray4: #636366; --text: #f5f5f7; --text-dim: #8e8e93;
+    --black:#0a0a0a;--yellow:#FFD700;--yellow-dim:#f5c800;--green:#00c853;--green-dim:#1a3d2b;
+    --red:#ff3b30;--red-dim:#3d1a1a;--mid:#ff9500;--mid-dim:#3d2a00;--gray:#1c1c1e;
+    --gray2:#2c2c2e;--gray3:#3a3a3c;--gray4:#636366;--text:#f5f5f7;--text-dim:#8e8e93;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--black); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif; min-height: 100vh; }
-
-  .header { background: var(--gray); border-bottom: 1px solid var(--gray3); padding: 16px 28px; display: flex; align-items: center; gap: 14px; position: sticky; top: 0; z-index: 100; }
-  .header-icon { width: 36px; height: 36px; background: var(--yellow); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-  .header h1 { font-size: 16px; font-weight: 700; }
-  .header p { font-size: 12px; color: var(--text-dim); margin-top: 1px; }
-  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
-
-  .main { max-width: 1200px; margin: 0 auto; padding: 32px 24px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 22px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
-  .btn-yellow { background: var(--yellow); color: var(--black); }
-  .btn-yellow:hover { background: var(--yellow-dim); }
-  .btn-ghost { background: var(--gray2); color: var(--text); }
-  .btn-ghost:hover { background: var(--gray3); }
-  .btn-sm { padding: 7px 14px; font-size: 12px; border-radius: 8px; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--black);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',sans-serif;min-height:100vh}
+  .header{background:var(--gray);border-bottom:1px solid var(--gray3);padding:14px 28px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100}
+  .header-icon{width:36px;height:36px;background:var(--yellow);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .header h1{font-size:16px;font-weight:700}
+  .header p{font-size:12px;color:var(--text-dim)}
+  .main{max-width:1200px;margin:0 auto;padding:32px 24px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all .15s}
+  .btn-yellow{background:var(--yellow);color:#000}.btn-yellow:hover{background:var(--yellow-dim)}
+  .btn-ghost{background:var(--gray2);color:var(--text)}.btn-ghost:hover{background:var(--gray3)}
 
   /* LOGIN */
-  #loginOverlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:999; align-items:center; justify-content:center; padding:20px; }
-  .login-box { background:var(--gray); border:1px solid var(--gray3); border-radius:24px; width:100%; max-width:420px; padding:40px 36px; }
-  .login-logo { display:flex; align-items:center; gap:14px; margin-bottom:32px; }
-  .login-logo-icon { width:48px; height:48px; background:var(--yellow); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:24px; }
-  .login-field { margin-bottom:16px; }
-  .login-field label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); display:block; margin-bottom:8px; }
-  .login-field input { width:100%; background:var(--gray2); border:1px solid var(--gray3); border-radius:10px; padding:12px 14px; color:var(--text); font-size:14px; outline:none; }
-  .login-field input:focus { border-color: var(--yellow); }
-  #loginError { display:none; background:var(--red-dim); color:var(--red); border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:16px; }
+  #loginOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px}
+  .login-box{background:var(--gray);border:1px solid var(--gray3);border-radius:24px;width:100%;max-width:420px;padding:40px 36px}
+  .login-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px}
+  .login-logo-icon{width:48px;height:48px;background:var(--yellow);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+  .field{margin-bottom:16px}
+  .field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);display:block;margin-bottom:8px}
+  .field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;outline:none}
+  .field input:focus{border-color:var(--yellow)}
+  #loginError{display:none;background:var(--red-dim);color:var(--red);border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:16px}
 
-  /* UPLOAD */
-  .upload-section { display:flex; flex-direction:column; align-items:center; gap:24px; }
-  .upload-zone { width:100%; max-width:520px; border:2px dashed var(--gray3); border-radius:20px; padding:56px 32px; text-align:center; cursor:pointer; transition:all 0.2s; background:var(--gray); }
-  .upload-zone:hover, .upload-zone.drag-over { border-color:var(--yellow); background:#1a1a0a; }
-  .upload-zone .icon { font-size:48px; margin-bottom:16px; }
-  .upload-zone h2 { font-size:20px; font-weight:600; margin-bottom:8px; }
-  .upload-zone p { font-size:14px; color:var(--text-dim); line-height:1.5; }
-  .upload-zone input { display:none; }
+  /* UPLOAD STEPS */
+  .steps{display:none;flex-direction:column;gap:20px;max-width:600px;margin:0 auto}
+  .steps.visible{display:flex}
+  .step-card{background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:24px}
+  .step-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .step-num{width:28px;height:28px;background:var(--yellow);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;flex-shrink:0}
+  .step-num.done{background:var(--green)}
+  .step-header h3{font-size:15px;font-weight:600}
+  .step-header p{font-size:13px;color:var(--text-dim)}
+  .drop-zone{border:2px dashed var(--gray3);border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:var(--yellow);background:#1a1a0a}
+  .drop-zone .dz-icon{font-size:36px;margin-bottom:10px}
+  .drop-zone p{font-size:14px;color:var(--text-dim)}
+  .drop-zone input{display:none}
+  .file-done{display:flex;align-items:center;gap:12px;background:var(--green-dim);border-radius:10px;padding:12px 16px}
+  .file-done .fd-icon{font-size:20px}
+  .file-done .fd-name{font-size:14px;font-weight:600;color:var(--green)}
+  .file-done .fd-sub{font-size:12px;color:var(--text-dim)}
 
   /* PAGE RANGE */
-  #pageRangeSection { display:none; max-width:520px; margin:0 auto; }
-  .range-box { background:var(--gray); border:1px solid var(--gray3); border-radius:20px; padding:32px; }
-  .range-box h2 { font-size:18px; font-weight:700; margin-bottom:4px; }
-  .range-box p { font-size:13px; color:var(--text-dim); margin-bottom:24px; }
-  .range-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
-  .range-field label { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); display:block; margin-bottom:8px; }
-  .range-field input { width:100%; background:var(--gray2); border:1px solid var(--gray3); border-radius:10px; padding:12px; color:var(--text); font-size:20px; font-weight:700; outline:none; text-align:center; }
-  .range-field input:focus { border-color:var(--yellow); }
-  .range-tip { background:var(--gray2); border-radius:10px; padding:12px 16px; margin-bottom:20px; font-size:13px; color:var(--text-dim); line-height:1.5; }
-
-  /* FILTERS */
-  .filter-box { background:var(--gray); border:1px solid var(--gray3); border-radius:16px; padding:20px 24px; margin-bottom:16px; }
-  .filter-box h3 { font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.6px; color:var(--text-dim); margin-bottom:14px; }
-  .filter-row { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
-  .filter-item { display:flex; align-items:center; gap:10px; }
-  .filter-item label { font-size:14px; color:var(--text-dim); }
-  .filter-item input[type=number] { width:80px; background:var(--gray2); border:1px solid var(--gray3); border-radius:8px; padding:8px 10px; color:var(--text); font-size:14px; font-weight:600; outline:none; text-align:center; }
-  .filter-item input[type=number]:focus { border-color:var(--yellow); }
+  .page-range{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  .pr-field label{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);display:block;margin-bottom:6px}
+  .pr-field input{width:100%;background:var(--gray2);border:1px solid var(--gray3);border-radius:10px;padding:10px;color:var(--text);font-size:18px;font-weight:700;outline:none;text-align:center}
+  .pr-field input:focus{border-color:var(--yellow)}
 
   /* PROGRESS */
-  .progress-section { display:none; flex-direction:column; gap:16px; }
-  .progress-section.visible { display:flex; }
-  .progress-card { background:var(--gray); border-radius:16px; padding:24px; border:1px solid var(--gray3); }
-  .progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-  .progress-header h3 { font-size:15px; font-weight:600; }
-  .progress-count { font-size:13px; color:var(--text-dim); background:var(--gray2); padding:4px 10px; border-radius:20px; }
-  .progress-bar-track { height:6px; background:var(--gray3); border-radius:3px; overflow:hidden; }
-  .progress-bar-fill { height:100%; background:var(--yellow); border-radius:3px; transition:width 0.4s ease; width:0%; }
-  .progress-status { margin-top:10px; font-size:13px; color:var(--text-dim); }
-  .live-feed { background:var(--gray); border-radius:16px; border:1px solid var(--gray3); overflow:hidden; max-height:260px; }
-  .live-feed-header { padding:12px 18px; border-bottom:1px solid var(--gray3); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-dim); display:flex; align-items:center; gap:8px; }
-  .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-  .live-feed-items { padding:6px 0; overflow-y:auto; max-height:210px; }
-  .feed-item { padding:9px 18px; font-size:13px; display:flex; align-items:center; gap:10px; border-bottom:1px solid #1a1a1a; animation:slideIn 0.2s ease; }
-  @keyframes slideIn { from{opacity:0;transform:translateY(-4px)} to{opacity:1;transform:translateY(0)} }
-  .feed-icon { font-size:14px; flex-shrink:0; }
-  .feed-name { color:var(--text); font-weight:500; }
-  .feed-text { color:var(--text-dim); }
+  .progress-section{display:none;flex-direction:column;gap:16px}
+  .progress-section.visible{display:flex}
+  .progress-card{background:var(--gray);border-radius:16px;padding:24px;border:1px solid var(--gray3)}
+  .progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .progress-header h3{font-size:15px;font-weight:600}
+  .prog-count{font-size:13px;color:var(--text-dim);background:var(--gray2);padding:4px 10px;border-radius:20px}
+  .prog-track{height:6px;background:var(--gray3);border-radius:3px;overflow:hidden}
+  .prog-fill{height:100%;background:var(--yellow);border-radius:3px;transition:width .4s ease;width:0%}
+  .prog-status{margin-top:10px;font-size:13px;color:var(--text-dim)}
+  .live-feed{background:var(--gray);border-radius:16px;border:1px solid var(--gray3);overflow:hidden;max-height:260px}
+  .lf-header{padding:12px 18px;border-bottom:1px solid var(--gray3);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-dim);display:flex;align-items:center;gap:8px}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .lf-items{padding:6px 0;overflow-y:auto;max-height:210px}
+  .fi{padding:9px 18px;font-size:13px;display:flex;align-items:center;gap:10px;border-bottom:1px solid #1a1a1a;animation:slideIn .2s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+  .fi-icon{font-size:14px;flex-shrink:0}
+  .fi-name{color:var(--text);font-weight:500}
+  .fi-text{color:var(--text-dim)}
 
   /* RESULTS */
-  .results-section { display:none; }
-  .results-section.visible { display:block; }
-  .results-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; flex-wrap:wrap; gap:12px; }
-  .results-header h2 { font-size:22px; font-weight:700; }
-  .results-header p { font-size:14px; color:var(--text-dim); margin-top:2px; }
+  .results-section{display:none}
+  .results-section.visible{display:block}
+  .results-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+  .results-header h2{font-size:22px;font-weight:700}
+  .results-header p{font-size:14px;color:var(--text-dim);margin-top:2px}
+  .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .stat-card{background:var(--gray);border-radius:14px;padding:16px 18px;border:1px solid var(--gray3)}
+  .stat-card .slabel{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--text-dim);margin-bottom:8px}
+  .stat-card .svalue{font-size:26px;font-weight:700;letter-spacing:-1px}
+  .stat-card.match .svalue{color:var(--green)}
+  .stat-card.similar .svalue{color:var(--mid)}
+  .stat-card.none .svalue{color:var(--red)}
+  .stat-card.total .svalue{color:var(--yellow)}
+  .toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;background:var(--gray);border:1px solid var(--gray3);border-radius:14px;padding:12px 18px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--gray3);background:var(--gray2);color:var(--text-dim);transition:all .15s}
+  .tab.active{background:var(--yellow);color:#000;border-color:var(--yellow);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
 
-  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
-  .stat-card { background:var(--gray); border-radius:14px; padding:16px 18px; border:1px solid var(--gray3); }
-  .stat-card .label { font-size:11px; text-transform:uppercase; letter-spacing:0.7px; color:var(--text-dim); margin-bottom:8px; }
-  .stat-card .value { font-size:26px; font-weight:700; letter-spacing:-1px; }
-  .stat-card.approved .value { color:var(--green); }
-  .stat-card.rejected .value { color:var(--red); }
-  .stat-card.nodata .value { color:var(--gray4); }
-  .stat-card.total .value { color:var(--yellow); }
+  /* PRODUCT CARD */
+  .pcard{background:var(--gray);border-radius:14px;border:1px solid var(--gray3);overflow:hidden;transition:transform .15s}
+  .pcard:hover{transform:translateY(-2px)}
+  .pcard.match{border-left:3px solid var(--green)}
+  .pcard.similar{border-left:3px solid var(--mid)}
+  .pcard.none{border-left:3px solid var(--red)}
 
-  .toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px; background:var(--gray); border:1px solid var(--gray3); border-radius:14px; padding:12px 18px; }
-  .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; }
-  .tab-btn { padding:6px 14px; border-radius:20px; font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--gray3); background:var(--gray2); color:var(--text-dim); transition:all 0.15s; }
-  .tab-btn.active { background:var(--yellow); color:var(--black); border-color:var(--yellow); font-weight:600; }
+  .pcard-top{padding:14px;display:flex;gap:14px;align-items:flex-start}
+  .pcard-imgs{display:flex;flex-direction:column;gap:6px;flex-shrink:0}
+  .cat-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
+  .amz-img{width:70px;height:70px;border-radius:8px;object-fit:contain;background:#111;border:1px solid var(--gray3)}
+  .pcard-info{flex:1;min-width:0}
+  .pcard-model{font-size:11px;color:var(--text-dim);font-weight:500;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+  .pcard-name{font-size:13px;font-weight:600;line-height:1.3;margin-bottom:6px}
+  .match-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .match-badge.match{background:var(--green-dim);color:var(--green)}
+  .match-badge.similar{background:var(--mid-dim);color:var(--mid)}
+  .match-badge.none{background:var(--red-dim);color:var(--red)}
 
-  .products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:14px; }
-  .product-card { background:var(--gray); border-radius:14px; border:1px solid var(--gray3); overflow:hidden; transition:transform 0.15s; }
-  .product-card:hover { transform:translateY(-2px); }
-  .product-card.approved { border-left:3px solid var(--green); }
-  .product-card.rejected { border-left:3px solid var(--red); }
-  .product-card.nodata { border-left:3px solid var(--gray4); }
+  .amz-title{font-size:12px;color:var(--text-dim);margin-top:6px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
-  .card-top { display:flex; gap:12px; padding:14px; align-items:flex-start; }
-  .product-img { width:72px; height:72px; border-radius:10px; object-fit:contain; background:#111; flex-shrink:0; border:1px solid var(--gray3); }
-  .product-info { flex:1; min-width:0; }
-  .product-model { font-size:11px; color:var(--text-dim); font-weight:500; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px; }
-  .product-name { font-size:13px; font-weight:600; line-height:1.3; margin-bottom:6px; }
+  .pcard-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray3);border-top:1px solid var(--gray3)}
+  .metric{background:var(--gray);padding:10px 12px}
+  .metric .ml{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-dim);margin-bottom:3px}
+  .metric .mv{font-size:14px;font-weight:700}
+  .metric .mv.good{color:var(--green)}.metric .mv.warn{color:var(--mid)}.metric .mv.bad{color:var(--red)}
 
-  .status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:600; }
-  .status-badge.approved { background:var(--green-dim); color:var(--green); }
-  .status-badge.rejected { background:var(--red-dim); color:var(--red); }
-  .status-badge.nodata { background:var(--gray3); color:var(--text-dim); }
+  .pcard-footer{padding:9px 14px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--gray3)}
+  .amz-link{font-size:12px;color:var(--yellow);text-decoration:none}
+  .amz-link:hover{text-decoration:underline}
+  .match-score{font-size:11px;color:var(--text-dim)}
 
-  .card-metrics { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1px; background:var(--gray3); border-top:1px solid var(--gray3); }
-  .metric { background:var(--gray); padding:10px 14px; }
-  .metric .m-label { font-size:10px; text-transform:uppercase; letter-spacing:0.5px; color:var(--text-dim); margin-bottom:3px; }
-  .metric .m-value { font-size:15px; font-weight:700; }
-  .metric .m-value.good { color:var(--green); }
-  .metric .m-value.warn { color:var(--mid); }
-  .metric .m-value.bad { color:var(--red); }
-
-  .card-footer { padding:9px 14px; display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--gray3); }
-  .card-link { font-size:12px; color:var(--yellow); text-decoration:none; }
-  .card-link:hover { text-decoration:underline; }
-
-  @media(max-width:640px){ .stats-row{grid-template-columns:repeat(2,1fr)} .products-grid{grid-template-columns:1fr} .main{padding:20px 16px} }
+  @media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.main{padding:20px 16px}}
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
+<div id="loginOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:999;align-items:center;justify-content:center;padding:20px;">
   <div class="login-box">
     <div class="login-logo">
       <div class="login-logo-icon">📦</div>
-      <div>
-        <div style="font-size:18px;font-weight:700;">Minerador de Produtos</div>
-        <div style="font-size:13px;color:var(--text-dim);">All Vedere Commerce</div>
-      </div>
+      <div><div style="font-size:18px;font-weight:700">Minerador de Produtos</div><div style="font-size:13px;color:var(--text-dim)">All Vedere Commerce</div></div>
     </div>
-    <div class="login-field">
-      <label>Usuário</label>
-      <input id="inputUser" type="text" placeholder="Digite seu usuário">
-    </div>
-    <div class="login-field" style="margin-bottom:24px;">
-      <label>Senha</label>
-      <input id="inputPass" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()">
-    </div>
+    <div class="field"><label>Usuário</label><input id="inputUser" type="text" placeholder="Digite seu usuário"></div>
+    <div class="field" style="margin-bottom:24px"><label>Senha</label><input id="inputPass" type="password" placeholder="Digite sua senha" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div id="loginError">Usuário ou senha incorretos.</div>
-    <button onclick="doLogin()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;">Entrar</button>
+    <button onclick="doLogin()" style="width:100%;background:var(--yellow);color:#000;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer">Entrar</button>
   </div>
 </div>
 
 <div class="header">
   <div class="header-icon">📦</div>
-  <div>
-    <h1>Minerador de Produtos</h1>
-    <p>All Vedere Commerce</p>
-  </div>
-  <div class="header-right">
-    <button onclick="doLogout()" style="background:var(--gray2);color:var(--text-dim);border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer;">🔒 Sair</button>
+  <div><h1>Minerador de Produtos</h1><p>All Vedere Commerce</p></div>
+  <div style="margin-left:auto">
+    <button onclick="doLogout()" style="background:var(--gray2);color:var(--text-dim);border:none;border-radius:8px;padding:7px 14px;font-size:12px;cursor:pointer">🔒 Sair</button>
   </div>
 </div>
 
 <div class="main">
 
-  <!-- UPLOAD -->
-  <div class="upload-section" id="uploadSection" style="display:none;">
-    <div class="upload-zone" id="uploadZone">
-      <div class="icon">📂</div>
-      <h2>Suba o catálogo do fornecedor</h2>
-      <p>Arraste o PDF aqui ou clique para selecionar</p>
-      <input type="file" id="fileInput" accept=".pdf">
+  <!-- STEPS -->
+  <div class="steps" id="stepsSection">
+    <!-- Step 1: Keepa -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num" id="step1num">1</div>
+        <div><h3>Planilha do Keepa</h3><p>Suba o arquivo Excel exportado do Keepa com produtos de alta demanda</p></div>
+      </div>
+      <div class="drop-zone" id="keepaDrop" onclick="document.getElementById('keepaFile').click()">
+        <div class="dz-icon">📊</div>
+        <p>Arraste o arquivo .xlsx do Keepa aqui ou clique para selecionar</p>
+        <input type="file" id="keepaFile" accept=".xlsx,.xls,.csv">
+      </div>
+      <div id="keepaDone" style="display:none"></div>
     </div>
-    <button class="btn btn-yellow" onclick="document.getElementById('fileInput').click()">➕ Selecionar PDF</button>
-  </div>
 
-  <!-- PAGE RANGE -->
-  <div id="pageRangeSection">
-    <div class="range-box">
-      <h2>Selecionar páginas</h2>
-      <p id="pageRangeSubtitle"></p>
-      <div class="range-grid">
-        <div class="range-field">
-          <label>Página inicial</label>
-          <input id="pageStart" type="number" min="1" value="3">
-        </div>
-        <div class="range-field">
-          <label>Página final</label>
-          <input id="pageEnd" type="number" min="1" value="50">
-        </div>
+    <!-- Step 2: PDF -->
+    <div class="step-card">
+      <div class="step-header">
+        <div class="step-num" id="step2num">2</div>
+        <div><h3>Catálogo do Fornecedor</h3><p>Suba o PDF do catálogo que deseja analisar</p></div>
       </div>
-      <div class="filter-box">
-        <h3>🎯 Filtros de aprovação</h3>
-        <div class="filter-row">
-          <div class="filter-item">
-            <label>Avaliação mínima</label>
-            <input type="number" id="filterStars" value="4" min="1" max="5" step="0.1">
-            <label>⭐</label>
-          </div>
-          <div class="filter-item">
-            <label>Vendas mínimas/mês</label>
-            <input type="number" id="filterSales" value="100" min="1">
-            <label>unid.</label>
-          </div>
+      <div class="drop-zone" id="pdfDrop" onclick="document.getElementById('pdfFile').click()">
+        <div class="dz-icon">📄</div>
+        <p>Arraste o catálogo PDF aqui ou clique para selecionar</p>
+        <input type="file" id="pdfFile" accept=".pdf">
+      </div>
+      <div id="pdfDone" style="display:none"></div>
+      <div id="pageRangeBox" style="display:none;margin-top:16px">
+        <div style="font-size:13px;color:var(--text-dim);margin-bottom:10px">Selecione o intervalo de páginas a analisar:</div>
+        <div class="page-range">
+          <div class="pr-field"><label>Página inicial</label><input type="number" id="pageStart" value="3" min="1"></div>
+          <div class="pr-field"><label>Página final</label><input type="number" id="pageEnd" value="50" min="1"></div>
         </div>
       </div>
-      <div class="range-tip">💡 Produtos com avaliação ≥ <strong id="tipStars">4</strong>⭐ e estimativa ≥ <strong id="tipSales">100</strong> vendas/mês serão marcados como <span style="color:var(--green)">✓ Aprovado</span>.</div>
-      <div style="display:flex;gap:10px;">
-        <button class="btn btn-ghost" style="flex:1" onclick="resetApp()">↩ Voltar</button>
-        <button class="btn btn-yellow" style="flex:2" onclick="startAnalysis()">▶ Iniciar análise</button>
-      </div>
+    </div>
+
+    <!-- Step 3: Start -->
+    <div style="display:flex;gap:12px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="resetAll()">↩ Limpar</button>
+      <button class="btn btn-yellow" id="startBtn" onclick="startCrossRef()" disabled style="opacity:.4">▶ Iniciar cruzamento</button>
     </div>
   </div>
 
@@ -236,518 +209,506 @@
   <div class="progress-section" id="progressSection">
     <div class="progress-card">
       <div class="progress-header">
-        <h3 id="progressTitle">Analisando...</h3>
-        <span class="progress-count" id="progressCount">0 / 0</span>
+        <h3 id="progressTitle">Processando...</h3>
+        <span class="prog-count" id="progressCount">0 / 0</span>
       </div>
-      <div class="progress-bar-track"><div class="progress-bar-fill" id="progressBar"></div></div>
-      <div class="progress-status" id="progressStatus">Iniciando...</div>
+      <div class="prog-track"><div class="prog-fill" id="progressBar"></div></div>
+      <div class="prog-status" id="progressStatus">Iniciando...</div>
     </div>
     <div class="live-feed">
-      <div class="live-feed-header"><div class="live-dot"></div>Análise em tempo real</div>
-      <div class="live-feed-items" id="liveFeed"></div>
+      <div class="lf-header"><div class="live-dot"></div>Análise em tempo real</div>
+      <div class="lf-items" id="liveFeed"></div>
     </div>
   </div>
 
   <!-- RESULTS -->
   <div class="results-section" id="resultsSection">
     <div class="results-header">
-      <div>
-        <h2>Relatório de Demanda</h2>
-        <p id="resultsSubtitle"></p>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="btn btn-ghost" onclick="resetApp()">↩ Novo catálogo</button>
+      <div><h2>Cruzamento de Produtos</h2><p id="resultsSub"></p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-ghost" onclick="resetAll()">↩ Novo cruzamento</button>
         <button class="btn btn-yellow" onclick="exportCSV()">⬇ Exportar CSV</button>
       </div>
     </div>
-
     <div class="stats-row">
-      <div class="stat-card total"><div class="label">Total Analisado</div><div class="value" id="statTotal">0</div></div>
-      <div class="stat-card approved"><div class="label">✓ Aprovados</div><div class="value" id="statApproved">0</div></div>
-      <div class="stat-card rejected"><div class="label">✗ Reprovados</div><div class="value" id="statRejected">0</div></div>
-      <div class="stat-card nodata"><div class="label">Sem dados</div><div class="value" id="statNodata">0</div></div>
+      <div class="stat-card total"><div class="slabel">Total do Catálogo</div><div class="svalue" id="statTotal">0</div></div>
+      <div class="stat-card match"><div class="slabel">✓ Correspondência</div><div class="svalue" id="statMatch">0</div></div>
+      <div class="stat-card similar"><div class="slabel">~ Semelhante</div><div class="svalue" id="statSimilar">0</div></div>
+      <div class="stat-card none"><div class="slabel">✗ Não encontrado</div><div class="svalue" id="statNone">0</div></div>
     </div>
-
     <div class="toolbar">
-      <div class="filter-tabs">
-        <button class="tab-btn active" onclick="filterCards('all',this)">Todos</button>
-        <button class="tab-btn" onclick="filterCards('approved',this)">✓ Aprovados</button>
-        <button class="tab-btn" onclick="filterCards('rejected',this)">✗ Reprovados</button>
-        <button class="tab-btn" onclick="filterCards('nodata',this)">Sem dados</button>
+      <div class="tabs">
+        <button class="tab active" onclick="filterResults('all',this)">Todos</button>
+        <button class="tab" onclick="filterResults('match',this)">✓ Correspondência</button>
+        <button class="tab" onclick="filterResults('similar',this)">~ Semelhante</button>
+        <button class="tab" onclick="filterResults('none',this)">✗ Não encontrado</button>
       </div>
-      <span style="font-size:12px;color:var(--text-dim);">Ordenado por avaliação</span>
+      <span style="font-size:12px;color:var(--text-dim)">Ordenado por relevância</span>
     </div>
-
-    <div class="products-grid" id="productsGrid"></div>
+    <div class="grid" id="resultsGrid"></div>
   </div>
 
 </div>
 
 <script>
-  pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const VALID_USER = 'Allvedere';
-  const VALID_PASS = 'Lelisx@nd4';
-  const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
-  const ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6nxPVlaaMTm','uhudEoOsJOxe2W4Zv8iv','kZbAR9G8_3-kMvvEUYg-','vS9dFAAA'].join('');
+const VALID_USER = 'Allvedere';
+const VALID_PASS = 'Lelisx@nd4';
+const ANTHROPIC_API = 'https://api.anthropic.com/v1/messages';
+const ANTHROPIC_KEY = ['sk-ant-api03-jgM_bzJ','BJ7pHI48JHe5Fb5e5syA','a3IIC21ss6nxPVlaaMTm','uhudEoOsJOxe2W4Zv8iv','kZbAR9G8_3-kMvvEUYg-','vS9dFAAA'].join('');
 
-  let allProducts = [];
-  let totalPdfPages = 0;
-  let filterStars = 4;
-  let filterSales = 100;
-  let pdfFile = null;
+let keepaProducts = [];
+let catalogProducts = [];
+let allResults = [];
+let pdfFile = null;
+let totalPdfPages = 0;
 
-  // ─── LOGIN ───
-  function checkLogin() {
-    if (!sessionStorage.getItem('logged')) {
-      document.getElementById('loginOverlay').style.display = 'flex';
-      document.getElementById('uploadSection').style.display = 'none';
-    } else {
-      document.getElementById('uploadSection').style.display = 'flex';
-    }
+// ─── LOGIN ───
+function checkLogin() {
+  if (!sessionStorage.getItem('logged')) {
+    document.getElementById('loginOverlay').style.display = 'flex';
+    document.getElementById('stepsSection').classList.remove('visible');
+  } else {
+    document.getElementById('stepsSection').classList.add('visible');
   }
-  function doLogin() {
-    const u = document.getElementById('inputUser').value.trim();
-    const p = document.getElementById('inputPass').value;
-    if (u === VALID_USER && p === VALID_PASS) {
-      sessionStorage.setItem('logged','1');
-      document.getElementById('loginOverlay').style.display = 'none';
-      document.getElementById('uploadSection').style.display = 'flex';
-    } else {
-      document.getElementById('loginError').style.display = 'block';
-    }
+}
+function doLogin() {
+  const u = document.getElementById('inputUser').value.trim();
+  const p = document.getElementById('inputPass').value;
+  if (u === VALID_USER && p === VALID_PASS) {
+    sessionStorage.setItem('logged','1');
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('stepsSection').classList.add('visible');
+  } else {
+    document.getElementById('loginError').style.display = 'block';
   }
-  function doLogout() { sessionStorage.clear(); location.reload(); }
-  checkLogin();
+}
+function doLogout() { sessionStorage.clear(); location.reload(); }
+checkLogin();
 
-  // Update tip text when filters change
-  document.getElementById('filterStars').addEventListener('input', e => document.getElementById('tipStars').textContent = e.target.value);
-  document.getElementById('filterSales').addEventListener('input', e => document.getElementById('tipSales').textContent = e.target.value);
+// ─── DRAG & DROP ───
+function setupDrop(zone, input, onFile) {
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (f) onFile(f);
+  });
+  input.addEventListener('change', e => { if (e.target.files[0]) onFile(e.target.files[0]); });
+}
 
-  // ─── DRAG & DROP ───
-  const uploadZone = document.getElementById('uploadZone');
-  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
-  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
-  uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag-over'); const f = e.dataTransfer.files[0]; if (f?.type==='application/pdf') processFile(f); });
-  document.getElementById('fileInput').addEventListener('change', e => { if (e.target.files[0]) processFile(e.target.files[0]); });
+setupDrop(document.getElementById('keepaDrop'), document.getElementById('keepaFile'), loadKeepa);
+setupDrop(document.getElementById('pdfDrop'), document.getElementById('pdfFile'), loadPDF);
 
-  // ─── PROCESS FILE ───
-  async function processFile(file) {
-    pdfFile = file;
-    showProgress();
-    setProgressTitle('Lendo o PDF...');
-    addFeedItem('📄', file.name, 'carregando...');
-    try {
-      const buf = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-      totalPdfPages = pdf.numPages;
-      addFeedItem('📋', `${totalPdfPages} páginas`, 'encontradas');
-      showPageRange(totalPdfPages);
-    } catch(e) { showError('Erro ao ler PDF: ' + e.message); }
-  }
+// ─── LOAD KEEPA ───
+async function loadKeepa(file) {
+  try {
+    const buf = await file.arrayBuffer();
+    const wb = XLSX.read(buf, { type: 'array' });
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
 
-  function showPageRange(total) {
-    hide('progressSection'); hide('uploadSection');
-    document.getElementById('pageRangeSection').style.display = 'block';
-    document.getElementById('pageRangeSubtitle').textContent = `Catálogo com ${total} páginas`;
-    document.getElementById('pageEnd').value = Math.min(52, total);
-    document.getElementById('pageEnd').max = total;
-    document.getElementById('pageStart').max = total;
-  }
+    const headers = rows[0];
+    // Find column indices
+    const idx = {};
+    headers.forEach((h, i) => {
+      if (h === 'ASIN') idx.asin = i;
+      else if (h === 'Título') idx.title = i;
+      else if (h === 'Imagem') idx.image = i;
+      else if (h === 'Tendências de vendas mensais: Comprado no último mês') idx.sales = i;
+      else if (h === 'Avaliações: Classificação') idx.rating = i;
+      else if (h === 'Avaliações: Contagem de avaliações') idx.reviews = i;
+      else if (h === 'Buy Box: Atual') idx.price = i;
+      else if (h === 'Classificação de vendas: Atual') idx.bsr = i;
+      else if (h === 'Classificação de vendas: Grupo de exibição') idx.category = i;
+    });
 
-  async function startAnalysis() {
-    const start = parseInt(document.getElementById('pageStart').value);
-    const end = parseInt(document.getElementById('pageEnd').value);
-    filterStars = parseFloat(document.getElementById('filterStars').value) || 4;
-    filterSales = parseInt(document.getElementById('filterSales').value) || 100;
+    keepaProducts = rows.slice(1).filter(r => r[idx.asin]).map(r => ({
+      asin: r[idx.asin],
+      title: r[idx.title] || '',
+      image: r[idx.image] ? r[idx.image].split(';')[0] : null,
+      sales: r[idx.sales] || null,
+      rating: r[idx.rating] || null,
+      reviews: r[idx.reviews] || null,
+      price: r[idx.price] || null,
+      bsr: r[idx.bsr] || null,
+      category: r[idx.category] || '',
+    }));
 
-    if (!start || !end || start > end || end > totalPdfPages) { alert('Intervalo de páginas inválido.'); return; }
+    document.getElementById('keepaDrop').style.display = 'none';
+    document.getElementById('keepaDone').style.display = 'block';
+    document.getElementById('keepaDone').innerHTML = `
+      <div class="file-done">
+        <div class="fd-icon">✅</div>
+        <div><div class="fd-name">${file.name}</div><div class="fd-sub">${keepaProducts.length} produtos carregados do Keepa</div></div>
+      </div>`;
+    document.getElementById('step1num').classList.add('done');
+    document.getElementById('step1num').textContent = '✓';
+    checkReady();
+  } catch(e) { alert('Erro ao ler planilha: ' + e.message); }
+}
 
-    document.getElementById('pageRangeSection').style.display = 'none';
-    showProgress();
-    setProgressTitle(`Extraindo produtos das páginas ${start}–${end}...`);
-
-    try {
-      const products = await extractFromPDF(pdfFile, start, end);
-      if (!products.length) { showError('Nenhum produto encontrado nesse intervalo.'); return; }
-      addFeedItem('✅', `${products.length} produtos`, 'encontrados — iniciando análise');
-      await analyzeAll(products);
-    } catch(e) { showError('Erro: ' + e.message); }
-  }
-
-  // ─── PDF EXTRACTION ───
-  async function extractFromPDF(file, startPage, endPage) {
+// ─── LOAD PDF ───
+async function loadPDF(file) {
+  pdfFile = file;
+  try {
     const buf = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    const products = [];
-    const total = endPage - startPage + 1;
+    totalPdfPages = pdf.numPages;
 
-    for (let i = startPage; i <= endPage; i += 4) {
-      const batch = [];
-      for (let p = i; p < i+4 && p <= endPage; p++) batch.push(p);
-      const res = await Promise.all(batch.map(p => extractPage(pdf, p)));
-      for (const r of res) products.push(...r);
-      updateProgress(Math.min(i+3, endPage) - startPage + 1, total, `Página ${Math.min(i+3,endPage)} de ${endPage}...`);
-    }
-
-    const seen = new Set();
-    return products.filter(p => { if(seen.has(p.model)) return false; seen.add(p.model); return true; });
-  }
-
-  async function extractPage(pdf, pageNum) {
-    try {
-      const page = await pdf.getPage(pageNum);
-      const text = (await page.getTextContent()).items.map(i=>i.str).join(' ');
-      const modelMatches = [...text.matchAll(/MODELO[:\s]+([A-Z]{2,3}[-\s]?[A-Z0-9]{3,8})/gi)];
-      if (!modelMatches.length) return [];
-
-      const viewport = page.getViewport({ scale: 1.5 });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width; canvas.height = viewport.height;
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
-
-      const products = [];
-      const cols = modelMatches.length <= 1 ? 1 : modelMatches.length <= 2 ? 2 : 3;
-      const rows = Math.ceil(modelMatches.length / cols);
-
-      for (let idx = 0; idx < modelMatches.length; idx++) {
-        const model = modelMatches[idx][1].trim().replace(/\s+/,'-');
-        const name = extractName(text, idx);
-        const prices = [...text.matchAll(/Unid\.CX[:\s]*([\d,]+)/g)];
-        const price = prices[idx] ? prices[idx][1] : null;
-
-        const colW = canvas.width / cols, rowH = canvas.height / rows;
-        const row = Math.floor(idx/cols), col = idx%cols;
-        const crop = document.createElement('canvas');
-        crop.width = colW; crop.height = rowH;
-        crop.getContext('2d').drawImage(canvas, col*colW, row*rowH+30, colW, rowH-30, 0, 0, colW, rowH);
-
-        products.push({ model, name, price, imgData: crop.toDataURL('image/jpeg',0.75).split(',')[1], pageNum });
-      }
-      return products;
-    } catch { return []; }
-  }
-
-  function extractName(text, idx) {
-    const patterns = [
-      /Bandeja\s+[\w\s]{4,40}/i, /Imã\s+de\s+[\w\s]{4,30}/i, /Batedeira\s+[\w\s]{4,40}/i,
-      /Batedor\s+[\w\s]{4,40}/i, /Moedor\s+[\w\s]{4,30}/i, /Espumador\s+[\w\s]{4,40}/i,
-      /Armário\s+[\w\s]{4,30}/i, /Kit\s+[\w\s]{4,40}/i, /Pincel\s+[\w\s]{4,30}/i,
-      /Bolsa\s+[\w\s]{4,40}/i, /Mochila\s+[\w\s]{4,30}/i, /Caixa\s+[\w\s]{4,40}/i,
-      /Fone\s+[\w\s]{4,30}/i, /Relógio\s+[\w\s]{4,30}/i, /Suporte\s+[\w\s]{4,30}/i,
-      /Luminária\s+[\w\s]{4,30}/i, /Projetor\s+[\w\s]{4,30}/i, /Câmera\s+[\w\s]{4,30}/i,
-      /Ventilador\s+[\w\s]{4,30}/i, /Tomada\s+[\w\s]{4,30}/i, /Hub\s+USB[\w\s]{0,20}/i,
-      /Tapete\s+[\w\s]{4,30}/i, /Lixeira\s+[\w\s]{4,30}/i, /Dupla\s+Haste[\w\s]{4,30}/i,
-      /Caixa\s+de\s+Som[\w\s]{0,20}/i, /Alto[\-\s]?falante[\w\s]{4,30}/i,
-    ];
-    const all = [];
-    for (const p of patterns) { const m = text.match(new RegExp(p.source,'gi')); if(m) all.push(...m); }
-    return all[idx] ? all[idx].trim().slice(0,60) : `Produto #${idx+1}`;
-  }
-
-  // ─── ANALYSIS ───
-  async function analyzeAll(products) {
-    allProducts = [];
-    setProgressTitle('Buscando produtos na Amazon...');
-    const BATCH = 3;
-    for (let i = 0; i < products.length; i += BATCH) {
-      const batch = products.slice(i, i+BATCH);
-      await Promise.all(batch.map(p => analyzeProduct(p)));
-      updateProgress(Math.min(i+BATCH, products.length), products.length, `${Math.min(i+BATCH, products.length)} de ${products.length} analisados...`);
-      if (i+BATCH < products.length) await sleep(1000);
-    }
-    showResults();
-  }
-
-  async function analyzeProduct(product) {
-    try {
-      addFeedItem('🔍', product.model, product.name || 'identificando...');
-
-      // Step 1: AI identifies product
-      const ai = await identifyWithAI(product);
-
-      // Step 2: Find Amazon.com.br product via search engines
-      const amazonData = await findOnAmazon(ai.searchTerm, ai.searchTermAlt, ai.searchTermEn);
-
-      // Step 3: Determine if approved
-      const approved = amazonData.rating >= filterStars && amazonData.salesEstimate >= filterSales;
-      const status = amazonData.asin ? (approved ? 'approved' : 'rejected') : 'nodata';
-
-      const p = { ...product, ...ai, ...amazonData, status };
-      allProducts.push(p);
-
-      const emoji = status === 'approved' ? '✅' : status === 'rejected' ? '❌' : '⚪';
-      addFeedItem(emoji, product.model,
-        amazonData.asin
-          ? `⭐${amazonData.rating||'?'} · ~${amazonData.salesEstimate||'?'} vendas/mês · BSR #${(amazonData.bsr||0).toLocaleString('pt-BR')}`
-          : 'Não encontrado na Amazon.com.br'
-      );
-    } catch(e) {
-      allProducts.push({ ...product, status:'nodata', error: e.message });
-      addFeedItem('⚠️', product.model, 'Erro: ' + e.message);
-    }
-  }
-
-  async function identifyWithAI(product) {
-    // Extract text specs from the catalog page for better identification
-    const specsText = [product.name, product.specs].filter(Boolean).join(' | ');
-
-    const resp = await fetch(ANTHROPIC_API, {
-      method: 'POST',
-      headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-      body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 500,
-        messages: [{ role:'user', content: [
-          { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } },
-          { type:'text', text: `Você é um especialista em identificar produtos para venda na Amazon Brasil.
-
-Analise CUIDADOSAMENTE esta imagem do catálogo do fornecedor.
-Informações do catálogo: modelo="${product.model}", nome="${specsText}", preço fornecedor="R$${product.price || '?'}"
-
-Sua tarefa é identificar o produto com MÁXIMA PRECISÃO para encontrar o mesmo produto na Amazon.com.br.
-
-Observe na imagem:
-- Tipo exato do produto (ex: não apenas "batedeira" mas "batedeira elétrica portátil recarregável USB")
-- Cor predominante
-- Formato e tamanho aparente
-- Material visível
-- Funcionalidades visíveis (botões, displays, acessórios inclusos)
-- Quantidade de peças se visível
-- Qualquer texto/marca visível na embalagem
-
-Retorne SOMENTE um JSON válido sem explicações:
-{
-  "searchTerm": "termo de busca ESPECÍFICO em português para Amazon Brasil (6-9 palavras, inclua características únicas vistas na imagem)",
-  "searchTermAlt": "termo alternativo com palavras-chave diferentes mas igualmente específico",
-  "searchTermEn": "mesmo termo específico em inglês para busca complementar",
-  "productType": "tipo do produto em português (nome curto)",
-  "keyFeatures": "3-4 características distintivas separadas por vírgula"
-}` }
-        ]}]
-      })
-    });
-    const data = await resp.json();
-    try {
-      const text = data.content?.[0]?.text || '{}';
-      const parsed = JSON.parse(text.replace(/```json|```/g,'').trim());
-      return parsed;
-    }
-    catch { return { searchTerm: product.name || product.model, searchTermAlt: '', productType: product.name }; }
-  }
-
-  async function findOnAmazon(term1, term2, termEn) {
-    const API = '/api/search';
-    const allAsins = [];
-    const seen = new Set();
-
-    async function searchTerm(term) {
-      if (!term) return;
-      try {
-        const resp = await fetch(`${API}?term=${encodeURIComponent(term)}`, { signal: AbortSignal.timeout(12000) });
-        if (!resp.ok) return;
-        const data = await resp.json();
-        for (const a of (data.asins || [])) {
-          if (!seen.has(a)) { seen.add(a); allAsins.push(a); }
-        }
-      } catch {}
-    }
-
-    // Search with all terms in parallel for maximum coverage
-    await Promise.all([
-      searchTerm(term1),
-      searchTerm(term2),
-    ]);
-
-    // If still no results, try English term
-    if (allAsins.length === 0 && termEn) {
-      await searchTerm(termEn);
-    }
-
-    if (!allAsins.length) return { asin: null, rating: null, bsr: null, salesEstimate: null, reviewCount: null, amazonUrl: null };
-
-    // Fetch details for top candidate
-    return await fetchAmazonProduct(allAsins[0]);
-  }
-
-
-  async function fetchAmazonProduct(asin) {
-    try {
-      const API = '/api/search';
-      const resp = await fetch(`${API}?asin=${asin}`, { signal: AbortSignal.timeout(12000) });
-      if (!resp.ok) return { asin, amazonUrl: `https://www.amazon.com.br/dp/${asin}`, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
-      const data = await resp.json();
-      const salesEstimate = estimateSales(data.bsr);
-      return {
-        asin,
-        amazonUrl: `https://www.amazon.com.br/dp/${asin}`,
-        rating: data.rating,
-        reviewCount: data.reviewCount,
-        bsr: data.bsr,
-        price: data.price,
-        salesEstimate
-      };
-    } catch {
-      return { asin, amazonUrl: `https://www.amazon.com.br/dp/${asin}`, rating: null, bsr: null, salesEstimate: null, reviewCount: null };
-    }
-  }
-
-
-  function estimateSales(bsr) {
-    if (!bsr) return null;
-    if (bsr < 500) return 5000;
-    if (bsr < 2000) return 2000;
-    if (bsr < 10000) return 600;
-    if (bsr < 50000) return 150;
-    if (bsr < 200000) return 30;
-    return 5;
-  }
-
-  function estimateSalesLabel(n) {
-    if (!n) return '—';
-    if (n >= 5000) return '> 5.000';
-    if (n >= 2000) return '1.000 – 5.000';
-    if (n >= 600) return '300 – 1.000';
-    if (n >= 150) return '50 – 300';
-    if (n >= 30) return '10 – 50';
-    return '< 10';
-  }
-
-  // ─── UI ───
-  function showProgress() {
-    hide('uploadSection'); hide('pageRangeSection'); hide('resultsSection');
-    document.getElementById('progressSection').classList.add('visible');
-  }
-
-  function showResults() {
-    document.getElementById('progressSection').classList.remove('visible');
-    document.getElementById('resultsSection').classList.add('visible');
-
-    allProducts.sort((a,b) => {
-      if (a.status==='approved' && b.status!=='approved') return -1;
-      if (b.status==='approved' && a.status!=='approved') return 1;
-      return (b.rating||0) - (a.rating||0);
-    });
-
-    const total = allProducts.length;
-    const approved = allProducts.filter(p=>p.status==='approved').length;
-    const rejected = allProducts.filter(p=>p.status==='rejected').length;
-    const nodata = allProducts.filter(p=>p.status==='nodata').length;
-
-    document.getElementById('statTotal').textContent = total;
-    document.getElementById('statApproved').textContent = approved;
-    document.getElementById('statRejected').textContent = rejected;
-    document.getElementById('statNodata').textContent = nodata;
-    document.getElementById('resultsSubtitle').textContent = `${total} produtos analisados · ${approved} aprovados com ⭐≥${filterStars} e ≥${filterSales} vendas/mês`;
-
-    renderCards(allProducts);
-  }
-
-  function renderCards(products) {
-    const grid = document.getElementById('productsGrid');
-    grid.innerHTML = '';
-    if (!products.length) { grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`; return; }
-    for (const p of products) grid.appendChild(createCard(p));
-  }
-
-  function createCard(p) {
-    const div = document.createElement('div');
-    div.className = `product-card ${p.status}`;
-    div.dataset.status = p.status;
-
-    const badgeText = p.status==='approved' ? '✓ Aprovado' : p.status==='rejected' ? '✗ Reprovado' : '⚪ Sem dados';
-    const ratingClass = p.rating ? (p.rating>=4?'good':p.rating>=3?'warn':'bad') : '';
-    const salesClass = p.salesEstimate ? (p.salesEstimate>=filterSales?'good':'bad') : '';
-    const bsrClass = p.bsr ? (p.bsr<10000?'good':p.bsr<100000?'warn':'bad') : '';
-
-    div.innerHTML = `
-      <div class="card-top">
-        <img class="product-img" src="data:image/jpeg;base64,${p.imgData}" alt="${p.name}" onerror="this.style.display='none'">
-        <div class="product-info">
-          <div class="product-model">${p.model} · Pág. ${p.pageNum}</div>
-          <div class="product-name">${p.name || p.productType || 'Produto'}</div>
-          <span class="status-badge ${p.status}">${badgeText}</span>
-        </div>
-      </div>
-      <div class="card-metrics">
-        <div class="metric">
-          <div class="m-label">Avaliação</div>
-          <div class="m-value ${ratingClass}">${p.rating ? p.rating+'⭐' : '—'}</div>
-        </div>
-        <div class="metric">
-          <div class="m-label">Vendas/mês (est.)</div>
-          <div class="m-value ${salesClass}">${estimateSalesLabel(p.salesEstimate)}</div>
-        </div>
-        <div class="metric">
-          <div class="m-label">BSR Amazon</div>
-          <div class="m-value ${bsrClass}">${p.bsr ? '#'+p.bsr.toLocaleString('pt-BR') : '—'}</div>
-        </div>
-      </div>
-      <div class="card-footer">
-        <span style="font-size:11px;color:var(--text-dim)">Busca: "${p.searchTerm||''}"</span>
-        ${p.amazonUrl ? `<a href="${p.amazonUrl}" target="_blank" class="card-link">Ver na Amazon ↗</a>` : ''}
+    document.getElementById('pdfDrop').style.display = 'none';
+    document.getElementById('pdfDone').style.display = 'block';
+    document.getElementById('pdfDone').innerHTML = `
+      <div class="file-done">
+        <div class="fd-icon">✅</div>
+        <div><div class="fd-name">${file.name}</div><div class="fd-sub">${totalPdfPages} páginas encontradas</div></div>
       </div>`;
-    return div;
+    document.getElementById('pageRangeBox').style.display = 'block';
+    document.getElementById('pageEnd').value = Math.min(52, totalPdfPages);
+    document.getElementById('pageEnd').max = totalPdfPages;
+    document.getElementById('pageStart').max = totalPdfPages;
+    document.getElementById('step2num').classList.add('done');
+    document.getElementById('step2num').textContent = '✓';
+    checkReady();
+  } catch(e) { alert('Erro ao ler PDF: ' + e.message); }
+}
+
+function checkReady() {
+  const ready = keepaProducts.length > 0 && pdfFile !== null;
+  const btn = document.getElementById('startBtn');
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.4';
+}
+
+// ─── START CROSS REFERENCE ───
+async function startCrossRef() {
+  const start = parseInt(document.getElementById('pageStart').value);
+  const end = parseInt(document.getElementById('pageEnd').value);
+  if (!start || !end || start > end || end > totalPdfPages) { alert('Intervalo inválido.'); return; }
+
+  document.getElementById('stepsSection').classList.remove('visible');
+  showProgress();
+  setProgressTitle(`Extraindo produtos das páginas ${start}–${end}...`);
+  addFeed('📄', 'Catálogo', `Páginas ${start} a ${end}`);
+  addFeed('📊', 'Keepa', `${keepaProducts.length} produtos para cruzar`);
+
+  try {
+    catalogProducts = await extractFromPDF(pdfFile, start, end);
+    if (!catalogProducts.length) { showError('Nenhum produto encontrado.'); return; }
+    addFeed('✅', `${catalogProducts.length} produtos`, 'extraídos do catálogo');
+
+    await crossReference(catalogProducts);
+    showResults();
+  } catch(e) { showError('Erro: ' + e.message); }
+}
+
+// ─── PDF EXTRACTION ───
+async function extractFromPDF(file, startPage, endPage) {
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+  const products = [];
+  const total = endPage - startPage + 1;
+
+  for (let i = startPage; i <= endPage; i += 4) {
+    const batch = [];
+    for (let p = i; p < i+4 && p <= endPage; p++) batch.push(p);
+    const res = await Promise.all(batch.map(p => extractPage(pdf, p)));
+    for (const r of res) products.push(...r);
+    updateProgress(Math.min(i+3, endPage) - startPage + 1, total, `Página ${Math.min(i+3,endPage)} de ${endPage}...`);
   }
 
-  function filterCards(status, btn) {
-    document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    const filtered = status==='all' ? allProducts : allProducts.filter(p=>p.status===status);
-    renderCards(filtered);
-  }
+  const seen = new Set();
+  return products.filter(p => { if(seen.has(p.model)) return false; seen.add(p.model); return true; });
+}
 
-  function hide(id) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (id === 'progressSection') { el.classList.remove('visible'); }
-    else if (id === 'resultsSection') { el.classList.remove('visible'); }
-    else { el.style.display = 'none'; }
-  }
+async function extractPage(pdf, pageNum) {
+  try {
+    const page = await pdf.getPage(pageNum);
+    const text = (await page.getTextContent()).items.map(i=>i.str).join(' ');
+    const modelMatches = [...text.matchAll(/MODELO[:\s]+([A-Z]{2,3}[-\s]?[A-Z0-9]{3,8})/gi)];
+    if (!modelMatches.length) return [];
 
-  function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
-  function updateProgress(cur, tot, status) {
-    const pct = tot>0 ? Math.round((cur/tot)*100) : 0;
-    document.getElementById('progressBar').style.width = pct+'%';
-    document.getElementById('progressCount').textContent = `${cur} / ${tot}`;
-    document.getElementById('progressStatus').textContent = status;
-  }
-  function addFeedItem(icon, name, text) {
-    const feed = document.getElementById('liveFeed');
-    const item = document.createElement('div');
-    item.className = 'feed-item';
-    item.innerHTML = `<span class="feed-icon">${icon}</span><span><span class="feed-name">${name}</span> <span class="feed-text">· ${text}</span></span>`;
-    feed.appendChild(item);
-    feed.scrollTop = feed.scrollHeight;
-  }
+    const viewport = page.getViewport({ scale: 1.5 });
+    const canvas = document.createElement('canvas');
+    canvas.width = viewport.width; canvas.height = viewport.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
 
-  function showError(msg) {
-    document.getElementById('progressSection').innerHTML = `
-      <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:20px;font-size:14px;color:var(--text-dim)">⚠️ ${msg}</div>
-      <button class="btn btn-ghost" onclick="resetApp()">↩ Tentar novamente</button>`;
-  }
+    const products = [];
+    const cols = modelMatches.length <= 1 ? 1 : modelMatches.length <= 2 ? 2 : 3;
+    const rows = Math.ceil(modelMatches.length / cols);
 
-  function resetApp() {
-    allProducts = []; pdfFile = null; totalPdfPages = 0;
-    hide('progressSection'); hide('pageRangeSection'); hide('resultsSection');
-    document.getElementById('uploadSection').style.display = 'flex';
-    document.getElementById('fileInput').value = '';
-    document.getElementById('liveFeed').innerHTML = '';
-  }
+    for (let idx = 0; idx < modelMatches.length; idx++) {
+      const model = modelMatches[idx][1].trim().replace(/\s+/,'-');
+      const name = extractName(text, idx);
+      const prices = [...text.matchAll(/Unid\.CX[:\s]*([\d,]+)/g)];
+      const price = prices[idx] ? prices[idx][1] : null;
+      const modelIdx = text.indexOf(model);
+      const specs = modelIdx >= 0 ? text.slice(modelIdx, modelIdx+300).replace(/\s+/g,' ').trim() : '';
 
-  function exportCSV() {
-    const rows = [['Modelo','Nome','Status','Avaliação','Vendas/mês (est.)','BSR','ASIN','Link Amazon','Busca usada','Página']];
-    for (const p of allProducts) {
-      rows.push([p.model, p.name||'', p.status, p.rating||'', estimateSalesLabel(p.salesEstimate), p.bsr||'', p.asin||'', p.amazonUrl||'', p.searchTerm||'', p.pageNum]);
+      const colW = canvas.width/cols, rowH = canvas.height/rows;
+      const row = Math.floor(idx/cols), col = idx%cols;
+      const crop = document.createElement('canvas');
+      crop.width = colW; crop.height = rowH;
+      crop.getContext('2d').drawImage(canvas, col*colW, row*rowH+30, colW, rowH-30, 0, 0, colW, rowH);
+
+      products.push({ model, name, price, specs, imgData: crop.toDataURL('image/jpeg',.75).split(',')[1], pageNum });
     }
-    const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
-    a.download = 'minerador-amazon.csv';
-    a.click();
+    return products;
+  } catch { return []; }
+}
+
+function extractName(text, idx) {
+  const patterns = [
+    /Bandeja\s+[\w\s]{4,40}/i,/Imã\s+de\s+[\w\s]{4,30}/i,/Batedeira\s+[\w\s]{4,40}/i,
+    /Batedor\s+[\w\s]{4,40}/i,/Moedor\s+[\w\s]{4,30}/i,/Espumador\s+[\w\s]{4,40}/i,
+    /Armário\s+[\w\s]{4,30}/i,/Kit\s+[\w\s]{4,40}/i,/Pincel\s+[\w\s]{4,30}/i,
+    /Bolsa\s+[\w\s]{4,40}/i,/Mochila\s+[\w\s]{4,30}/i,/Caixa\s+[\w\s]{4,40}/i,
+    /Fone\s+[\w\s]{4,30}/i,/Relógio\s+[\w\s]{4,30}/i,/Suporte\s+[\w\s]{4,30}/i,
+    /Luminária\s+[\w\s]{4,30}/i,/Projetor\s+[\w\s]{4,30}/i,/Câmera\s+[\w\s]{4,30}/i,
+    /Ventilador\s+[\w\s]{4,30}/i,/Tomada\s+[\w\s]{4,30}/i,/Hub\s+USB[\w\s]{0,20}/i,
+    /Caixa\s+de\s+Som[\w\s]{0,20}/i,/Tapete\s+[\w\s]{4,30}/i,/Lixeira\s+[\w\s]{4,30}/i,
+  ];
+  const all = [];
+  for (const p of patterns) { const m = text.match(new RegExp(p.source,'gi')); if(m) all.push(...m); }
+  return all[idx] ? all[idx].trim().slice(0,60) : `Produto #${idx+1}`;
+}
+
+// ─── CROSS REFERENCE ───
+async function crossReference(products) {
+  allResults = [];
+  setProgressTitle('Cruzando com produtos do Keepa...');
+  const BATCH = 3;
+
+  for (let i = 0; i < products.length; i += BATCH) {
+    const batch = products.slice(i, i+BATCH);
+    await Promise.all(batch.map(p => matchProduct(p)));
+    updateProgress(Math.min(i+BATCH, products.length), products.length, `${Math.min(i+BATCH, products.length)} de ${products.length} cruzados...`);
+    if (i+BATCH < products.length) await sleep(800);
   }
 
-  function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
+  // Sort: match first, then similar, then none
+  allResults.sort((a,b) => {
+    const order = { match:0, similar:1, none:2 };
+    return (order[a.matchType]||2) - (order[b.matchType]||2);
+  });
+}
+
+async function matchProduct(product) {
+  try {
+    addFeed('🔍', product.model, product.name || 'analisando...');
+
+    // Use AI to identify product and find best match in Keepa list
+    const result = await findBestMatch(product);
+
+    allResults.push({ ...product, ...result });
+
+    const emoji = result.matchType === 'match' ? '✅' : result.matchType === 'similar' ? '🟡' : '❌';
+    const keepaP = result.keepaMatch;
+    addFeed(emoji, product.model, keepaP
+      ? `${result.matchType === 'match' ? 'Correspondência' : 'Semelhante'}: "${keepaP.title?.slice(0,40)}..." · ${keepaP.sales||'?'} vendas/mês`
+      : 'Sem correspondência no Keepa');
+  } catch(e) {
+    allResults.push({ ...product, matchType: 'none', keepaMatch: null, matchScore: 0, matchReason: e.message });
+    addFeed('⚠️', product.model, 'Erro: ' + e.message);
+  }
+}
+
+async function findBestMatch(product) {
+  // Prepare a condensed list of Keepa products for AI to compare
+  // Send top 30 most relevant by title keywords
+  const productWords = (product.name + ' ' + product.specs).toLowerCase().split(/\s+/).filter(w => w.length > 3);
+
+  // Score Keepa products by keyword overlap
+  const scored = keepaProducts.map(kp => {
+    const title = kp.title.toLowerCase();
+    const score = productWords.filter(w => title.includes(w)).length;
+    return { ...kp, score };
+  }).sort((a,b) => b.score - a.score).slice(0, 20);
+
+  // Build compact list for AI
+  const keepaList = scored.map((kp, i) =>
+    `${i}: ASIN=${kp.asin} | "${kp.title.slice(0,80)}" | vendas=${kp.sales||'?'}/mês | ⭐${kp.rating||'?'} | R$${kp.price||'?'}`
+  ).join('\n');
+
+  const resp = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: { 'Content-Type':'application/json', 'x-api-key': ANTHROPIC_KEY, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 400,
+      messages: [{ role:'user', content: [
+        { type:'image', source:{ type:'base64', media_type:'image/jpeg', data: product.imgData } },
+        { type:'text', text: `Você é um especialista em cruzamento de produtos para e-commerce.
+
+PRODUTO DO CATÁLOGO DO FORNECEDOR:
+- Modelo: ${product.model}
+- Nome: ${product.name}
+- Specs: ${product.specs}
+
+PRODUTOS DISPONÍVEIS NA AMAZON (do Keepa):
+${keepaList}
+
+Analise a imagem do produto do catálogo e compare com os produtos do Keepa listados acima.
+
+Retorne SOMENTE JSON:
+{
+  "matchIndex": <número do índice do melhor produto correspondente, ou -1 se nenhum>,
+  "matchType": "match" (produto idêntico ou mesmo tipo/função) | "similar" (produto similar mas não idêntico) | "none" (sem correspondência),
+  "matchScore": <0-100, confiança da correspondência>,
+  "matchReason": "explicação curta em português de por que é uma correspondência"
+}` }
+      ]}]
+    })
+  });
+
+  const data = await resp.json();
+  try {
+    const parsed = JSON.parse((data.content?.[0]?.text||'{}').replace(/```json|```/g,'').trim());
+    const keepaMatch = parsed.matchIndex >= 0 && parsed.matchIndex < scored.length ? scored[parsed.matchIndex] : null;
+    return {
+      matchType: keepaMatch ? parsed.matchType : 'none',
+      matchScore: parsed.matchScore || 0,
+      matchReason: parsed.matchReason || '',
+      keepaMatch
+    };
+  } catch {
+    return { matchType: 'none', matchScore: 0, matchReason: '', keepaMatch: null };
+  }
+}
+
+// ─── RESULTS UI ───
+function showResults() {
+  document.getElementById('progressSection').classList.remove('visible');
+  document.getElementById('resultsSection').classList.add('visible');
+
+  const total = allResults.length;
+  const match = allResults.filter(r=>r.matchType==='match').length;
+  const similar = allResults.filter(r=>r.matchType==='similar').length;
+  const none = allResults.filter(r=>r.matchType==='none').length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statMatch').textContent = match;
+  document.getElementById('statSimilar').textContent = similar;
+  document.getElementById('statNone').textContent = none;
+  document.getElementById('resultsSub').textContent = `${total} produtos analisados · ${match} correspondências · ${similar} semelhantes`;
+
+  renderCards(allResults);
+}
+
+function renderCards(results) {
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = '';
+  if (!results.length) {
+    grid.innerHTML = `<div style="text-align:center;padding:60px;color:var(--text-dim)">Nenhum produto nesta categoria.</div>`;
+    return;
+  }
+  for (const r of results) grid.appendChild(createCard(r));
+}
+
+function createCard(r) {
+  const div = document.createElement('div');
+  div.className = `pcard ${r.matchType}`;
+  div.dataset.type = r.matchType;
+
+  const kp = r.keepaMatch;
+  const badgeText = r.matchType==='match' ? '✓ Correspondência' : r.matchType==='similar' ? '~ Semelhante' : '✗ Não encontrado';
+  const salesClass = kp?.sales >= 100 ? 'good' : kp?.sales > 0 ? 'warn' : '';
+  const ratingClass = kp?.rating >= 4 ? 'good' : kp?.rating >= 3 ? 'warn' : kp?.rating ? 'bad' : '';
+
+  div.innerHTML = `
+    <div class="pcard-top">
+      <div class="pcard-imgs">
+        <img class="cat-img" src="data:image/jpeg;base64,${r.imgData}" alt="${r.name}" onerror="this.style.display='none'" title="Produto do catálogo">
+        ${kp?.image ? `<img class="amz-img" src="${kp.image}" alt="Amazon" onerror="this.style.display='none'" title="Produto Amazon">` : '<div class="amz-img" style="background:var(--gray2);display:flex;align-items:center;justify-content:center;font-size:20px">🛒</div>'}
+      </div>
+      <div class="pcard-info">
+        <div class="pcard-model">${r.model} · Pág. ${r.pageNum}</div>
+        <div class="pcard-name">${r.name || 'Produto'}</div>
+        <span class="match-badge ${r.matchType}">${badgeText}</span>
+        ${kp ? `<div class="amz-title" title="${kp.title}">${kp.title}</div>` : ''}
+      </div>
+    </div>
+    <div class="pcard-metrics">
+      <div class="metric"><div class="ml">Vendas/mês</div><div class="mv ${salesClass}">${kp?.sales || '—'}</div></div>
+      <div class="metric"><div class="ml">Avaliação</div><div class="mv ${ratingClass}">${kp?.rating ? kp.rating+'⭐' : '—'}</div></div>
+      <div class="metric"><div class="ml">Preço Amazon</div><div class="mv">${kp?.price ? 'R$'+kp.price : '—'}</div></div>
+      <div class="metric"><div class="ml">BSR</div><div class="mv">${kp?.bsr ? '#'+Number(kp.bsr).toLocaleString('pt-BR') : '—'}</div></div>
+    </div>
+    <div class="pcard-footer">
+      <span class="match-score" title="${r.matchReason}">${r.matchReason ? '💬 '+r.matchReason.slice(0,50)+'...' : ''}</span>
+      ${kp?.asin ? `<a href="https://www.amazon.com.br/dp/${kp.asin}" target="_blank" class="amz-link">Ver na Amazon ↗</a>` : ''}
+    </div>`;
+  return div;
+}
+
+function filterResults(type, btn) {
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const filtered = type==='all' ? allResults : allResults.filter(r=>r.matchType===type);
+  renderCards(filtered);
+}
+
+// ─── PROGRESS UI ───
+function showProgress() {
+  document.getElementById('progressSection').classList.add('visible');
+  document.getElementById('resultsSection').classList.remove('visible');
+}
+function setProgressTitle(t) { document.getElementById('progressTitle').textContent = t; }
+function updateProgress(cur, tot, status) {
+  const pct = tot>0 ? Math.round((cur/tot)*100) : 0;
+  document.getElementById('progressBar').style.width = pct+'%';
+  document.getElementById('progressCount').textContent = `${cur} / ${tot}`;
+  document.getElementById('progressStatus').textContent = status;
+}
+function addFeed(icon, name, text) {
+  const feed = document.getElementById('liveFeed');
+  const item = document.createElement('div');
+  item.className = 'fi';
+  item.innerHTML = `<span class="fi-icon">${icon}</span><span><span class="fi-name">${name}</span> <span class="fi-text">· ${text}</span></span>`;
+  feed.appendChild(item);
+  feed.scrollTop = feed.scrollHeight;
+}
+function showError(msg) {
+  document.getElementById('progressSection').innerHTML = `
+    <div style="background:var(--gray);border:1px solid var(--gray3);border-radius:16px;padding:20px;font-size:14px;color:var(--text-dim)">⚠️ ${msg}</div>
+    <button class="btn btn-ghost" onclick="resetAll()">↩ Tentar novamente</button>`;
+}
+
+// ─── EXPORT ───
+function exportCSV() {
+  const rows = [['Modelo','Nome do Catálogo','Tipo','ASIN Amazon','Título Amazon','Vendas/mês','Avaliação','Preço','BSR','Confiança','Motivo','Link Amazon','Página']];
+  for (const r of allResults) {
+    const kp = r.keepaMatch || {};
+    rows.push([r.model, r.name||'', r.matchType, kp.asin||'', kp.title||'', kp.sales||'', kp.rating||'', kp.price||'', kp.bsr||'', r.matchScore||'', r.matchReason||'', kp.asin?`https://www.amazon.com.br/dp/${kp.asin}`:'', r.pageNum]);
+  }
+  const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download = 'cruzamento-keepa-catalogo.csv';
+  a.click();
+}
+
+// ─── RESET ───
+function resetAll() {
+  keepaProducts = []; catalogProducts = []; allResults = []; pdfFile = null;
+  document.getElementById('keepaDrop').style.display = 'block';
+  document.getElementById('keepaDone').style.display = 'none';
+  document.getElementById('pdfDrop').style.display = 'block';
+  document.getElementById('pdfDone').style.display = 'none';
+  document.getElementById('pageRangeBox').style.display = 'none';
+  document.getElementById('step1num').classList.remove('done'); document.getElementById('step1num').textContent = '1';
+  document.getElementById('step2num').classList.remove('done'); document.getElementById('step2num').textContent = '2';
+  document.getElementById('keepaFile').value = '';
+  document.getElementById('pdfFile').value = '';
+  document.getElementById('liveFeed').innerHTML = '';
+  document.getElementById('progressSection').classList.remove('visible');
+  document.getElementById('resultsSection').classList.remove('visible');
+  document.getElementById('stepsSection').classList.add('visible');
+  checkReady();
+}
+
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 </script>
 </body>
 </html>
